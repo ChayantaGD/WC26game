@@ -25,6 +25,8 @@ table{width:100%;border-collapse:collapse}th,td{padding:12px 8px;border-bottom:1
 <section id="fixtures" class="panel two"><div class="card"><div class="label">Exact fixtures & actual scores</div><p class="note">Pick a FIFA fixture, enter actual score when the game is done, and it displays on the board. Once an actual score is saved, there is no remove button on the site.</p><div class="fixtureRow"><select id="actualFixture"></select><input type="number" min="0" id="actualHome" placeholder="Home goals"><input type="number" min="0" id="actualAway" placeholder="Away goals"><select id="actualWinner"></select><button onclick="saveActualScore()">Save actual</button></div><br><div class="label">Player prediction</div><div class="pickRow"><select id="pickPlayer"></select><select id="pickFixture"></select><input type="number" min="0" id="pickHome" placeholder="Home"><input type="number" min="0" id="pickAway" placeholder="Away"><select id="pickWinner"></select><button onclick="savePrediction()">Save pick</button></div><p class="note">Predictions are tied to exact fixtures. If someone predicts a draw, select who they think advances. If an actual score exists, points and GD hits calculate automatically. You can still add manual adjustments in the Update tab.</p><div id="fixtureBoard" class="grid" style="margin-top:14px"></div></div><div class="card"><div class="label">What auto-calculates</div><p class="note"><b>Predictions made:</b> counted from fixture picks + manual extra predictions.</p><p class="note"><b>Points:</b> exact score = 1 point + manual extra points.</p><p class="note"><b>GD hits:</b> same goal difference = 1 GD hit + manual extra GD hits.</p><p class="note"><b>Static-site note:</b> GitHub Pages cannot securely fetch/update live FIFA scores for everyone without a backend. This page is built with the current fixture list and lets you manually enter actual scores after matches.</p></div></section>
 <section id="update" class="panel two"><div class="card"><div class="label">Manual update / adjustments</div><p class="note">Use this for older predictions, corrections, or anything not entered under Fixtures & Picks. Totals = fixture-calculated stats + these manual adjustments.</p><div class="row" style="grid-template-columns:1.2fr .8fr"><b>Games left</b><input type="number" min="0" id="gamesLeftInput" value="16" placeholder="Games left"></div><br><div id="controls" class="controls"></div><br><button onclick="saveFromInputs()">Save changes</button> <button class="secondary" onclick="resetData()">Reset to starter setup</button> <button class="secondary" onclick="downloadPage()">Download HTML</button><br><br><div class="label">Add player</div><p class="note">Add a new player here if more people join. They start on 0 unless you enter manual adjustments after adding.</p><div class="row" style="grid-template-columns:1fr .5fr"><input id="newPlayerName" placeholder="Player name"><button onclick="addPlayer()">Add player</button></div></div><div class="card"><div class="label">Scoring note</div><p class="note">Ranking order is: points first, then goal-difference hits, then more predictions made, then alphabetical.</p><p class="note">Actual scores are visible once entered. There is no delete button for actual scores or picks, but the browser owner can technically edit local storage or re-upload a clean file because this is a static HTML site.</p></div></section>
 </main></div><div id="toast" class="toast"></div>
+<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore-compat.js"></script>
 <script>
 const START=[
  {id:'kaky',name:'Big Kaky',manualPreds:6,manualPoints:1,manualGdHits:0},
@@ -54,15 +56,53 @@ const FIXTURES=[
  {id:'53452539',stage:'3rd Place Playoff',date:'2026-07-18',time:'5:00 PM ET',home:'Loser SF 1',away:'Loser SF 2'},
  {id:'53452537',stage:'Final',date:'2026-07-19',time:'3:00 PM ET',home:'Winner SF 1',away:'Winner SF 2'}
 ];
-const STORAGE_KEY='wc26_players_auto_v1';
-const PRED_KEY='wc26_fixture_predictions_v1';
-const ACTUAL_KEY='wc26_actual_scores_v1';
 const DEFAULT_GAMES_LEFT=16;
-const GAMES_KEY='wc26_games_left_v2';
-let remainingGames=+localStorage.getItem(GAMES_KEY)||DEFAULT_GAMES_LEFT;
-let players=JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(START)).map(p=>({manualPreds:p.manualPreds??p.preds??0,manualPoints:p.manualPoints??p.points??0,manualGdHits:p.manualGdHits??p.gdHits??0,id:p.id,name:p.name}));
-let predictions=JSON.parse(localStorage.getItem(PRED_KEY)||'[]');
-let actuals=JSON.parse(localStorage.getItem(ACTUAL_KEY)||'{}');
+
+// 1) Create a Firebase project, add a Web app, then paste your Firebase config here.
+// 2) Enable Firestore Database in Firebase Console.
+// 3) Publish this file as index.html on GitHub Pages.
+const firebaseConfig={
+ apiKey:'PASTE_YOUR_API_KEY_HERE',
+ authDomain:'PASTE_YOUR_PROJECT_ID.firebaseapp.com',
+ projectId:'PASTE_YOUR_PROJECT_ID',
+ storageBucket:'PASTE_YOUR_PROJECT_ID.firebasestorage.app',
+ messagingSenderId:'PASTE_YOUR_SENDER_ID',
+ appId:'PASTE_YOUR_APP_ID'
+};
+
+const CLOUD_COLLECTION='wc26PredictionLeague';
+const CLOUD_DOC='sharedData';
+let db=null;
+let cloudReady=false;
+let remainingGames=DEFAULT_GAMES_LEFT;
+let players=JSON.parse(JSON.stringify(START));
+let predictions=[];
+let actuals={};
+
+function normalizePlayers(list){return (list||START).map(p=>({manualPreds:p.manualPreds??p.preds??0,manualPoints:p.manualPoints??p.points??0,manualGdHits:p.manualGdHits??p.gdHits??0,id:p.id,name:p.name}))}
+function isFirebaseConfigured(){return firebaseConfig.apiKey && !firebaseConfig.apiKey.includes('PASTE_') && firebaseConfig.projectId && !firebaseConfig.projectId.includes('PASTE_')}
+function initFirebase(){
+ if(!isFirebaseConfigured()){toast('Add your Firebase config to enable cloud sync.');return false;}
+ try{firebase.initializeApp(firebaseConfig);db=firebase.firestore();cloudReady=true;return true;}catch(err){console.error(err);toast('Firebase setup failed. Check your config.');return false;}
+}
+async function loadCloudData(){
+ if(!cloudReady)return;
+ try{
+  toast('Loading saved predictions...');
+  const snap=await db.collection(CLOUD_COLLECTION).doc(CLOUD_DOC).get();
+  if(snap.exists){const data=snap.data()||{};players=normalizePlayers(data.players);predictions=Array.isArray(data.predictions)?data.predictions:[];actuals=data.actuals||{};remainingGames=Number.isFinite(+data.remainingGames)?+data.remainingGames:DEFAULT_GAMES_LEFT;toast('Latest cloud data loaded.');}
+  else{await saveCloudData('Starter setup saved to cloud.');}
+  render();
+ }catch(err){console.error(err);toast('Could not load cloud data. Check Firestore rules/config.');render();}
+}
+async function saveCloudData(successMessage='Saved to cloud. Stats updated.'){
+ if(!cloudReady){toast('Cloud not configured. Paste your Firebase config first.');return false;}
+ try{
+  toast('Saving to cloud...');
+  await db.collection(CLOUD_COLLECTION).doc(CLOUD_DOC).set({players:normalizePlayers(players),predictions,actuals,remainingGames,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+  toast(successMessage);return true;
+ }catch(err){console.error(err);toast('Save failed. Check internet, Firebase config, and rules.');return false;}
+}
 function fixtureLabel(f){return `${f.stage}: ${f.home} vs ${f.away} — ${f.date}, ${f.time}`}
 function getFixture(id){return FIXTURES.find(f=>f.id===id)}
 function computedFor(pid){
@@ -96,14 +136,15 @@ function winnerOptions(f,placeholder='Winner/advances'){return `<option value=""
 function syncWinnerSelects(){const pf=FIXTURES.find(f=>f.id===document.getElementById('pickFixture')?.value)||FIXTURES[0]; const af=FIXTURES.find(f=>f.id===document.getElementById('actualFixture')?.value)||FIXTURES[0]; const pw=document.getElementById('pickWinner'); const aw=document.getElementById('actualWinner'); if(pw&&pf)pw.innerHTML=winnerOptions(pf,'Winner if draw'); if(aw&&af)aw.innerHTML=winnerOptions(af,'Actual winner if draw');}
 function renderFixtureTools(){['actualFixture','pickFixture'].forEach(id=>{const el=document.getElementById(id); if(el)el.innerHTML=FIXTURES.map(f=>`<option value="${f.id}">${fixtureLabel(f)}</option>`).join('')}); const pp=document.getElementById('pickPlayer'); if(pp)pp.innerHTML=players.map(p=>`<option value="${p.id}">${p.name}</option>`).join(''); syncWinnerSelects(); ['pickFixture','actualFixture'].forEach(id=>{const el=document.getElementById(id); if(el)el.onchange=syncWinnerSelects;});}
 function renderFixtureBoard(){const board=document.getElementById('fixtureBoard'); if(!board)return; board.innerHTML=FIXTURES.map(f=>{const a=actuals[f.id]; const picks=predictions.filter(p=>p.fixtureId===f.id).sort((x,y)=>x.playerName.localeCompare(y.playerName)); const actualWinner=a&&a.winner?` <span class="pill purple">Winner: ${escapeHtml(a.winner)}</span>`:''; return `<div class="card fixtureCard"><div><span class="pill blue">${f.stage}</span> <span class="pill">${f.date} • ${f.time}</span></div><div class="matchTitle">${escapeHtml(f.home)} vs ${escapeHtml(f.away)}</div><div class="scoreBig">Actual: ${a?`<span class="pill green">${a.home} - ${a.away}</span>${actualWinner}`:'<span class="pill red">not entered</span>'}</div><div class="mutedLine"><div class="label">Predictions</div>${picks.length?picks.map(p=>{let result=''; if(a){const exact=(+p.home===+a.home&&+p.away===+a.away), gd=((+p.home-+p.away)===(+a.home-+a.away)); result=exact?' <span class="pill gold">+1 exact</span>':gd?' <span class="pill green">GD hit</span>':' <span class="pill">—</span>';} const winner=p.winner?` <span class="pill purple">Winner: ${escapeHtml(p.winner)}</span>`:''; return `<p class="mini"><b>${escapeHtml(p.playerName)}</b>: ${p.home}-${p.away}${winner}${result}</p>`}).join(''):'<p class="mini">No picks entered yet.</p>'}</div></div>`}).join('')}
-function saveActualScore(){const id=document.getElementById('actualFixture').value; const h=document.getElementById('actualHome').value; const a=document.getElementById('actualAway').value; const winner=document.getElementById('actualWinner')?.value||''; if(h===''||a===''){toast('Enter both actual scores.');return;} if(+h===+a&&!winner){toast('Draw score: choose actual winner/advancer.');return;} if(actuals[id]&&!confirm('Actual score already exists. Update it?'))return; actuals[id]={home:+h,away:+a,winner,savedAt:Date.now()}; localStorage.setItem(ACTUAL_KEY,JSON.stringify(actuals)); document.getElementById('actualHome').value='';document.getElementById('actualAway').value='';syncWinnerSelects();toast('Actual score saved.');render();}
-function savePrediction(){const playerId=document.getElementById('pickPlayer').value; const fixtureId=document.getElementById('pickFixture').value; const h=document.getElementById('pickHome').value; const a=document.getElementById('pickAway').value; const winner=document.getElementById('pickWinner')?.value||''; if(h===''||a===''){toast('Enter both prediction scores.');return;} if(+h===+a&&!winner){toast('Draw prediction: choose who advances.');return;} const pl=players.find(p=>p.id===playerId); const old=predictions.find(p=>p.playerId===playerId&&p.fixtureId===fixtureId); if(old&&!confirm('This player already has a pick for this fixture. Update it?'))return; if(old){old.home=+h;old.away=+a;old.winner=winner;old.playerName=pl.name;old.updatedAt=Date.now();} else predictions.push({id:'p_'+Date.now()+'_'+Math.random().toString(16).slice(2),playerId,playerName:pl.name,fixtureId,home:+h,away:+a,winner,createdAt:Date.now()}); localStorage.setItem(PRED_KEY,JSON.stringify(predictions)); document.getElementById('pickHome').value='';document.getElementById('pickAway').value='';syncWinnerSelects();toast('Prediction saved.');render();}
-function addPlayer(){const input=document.getElementById('newPlayerName'); const name=(input?.value||'').trim(); if(!name){toast('Enter a player name.');return;} const exists=players.some(p=>p.name.toLowerCase()===name.toLowerCase()); if(exists){toast('That player is already in the league.');return;} const id='player_'+name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')+'_'+Date.now().toString(36); players.push({id,name,manualPreds:0,manualPoints:0,manualGdHits:0}); localStorage.setItem(STORAGE_KEY,JSON.stringify(players)); if(input)input.value=''; toast(name+' added.'); render();}
-function saveFromInputs(){remainingGames=+document.getElementById('gamesLeftInput').value||0;localStorage.setItem(GAMES_KEY,String(remainingGames));players=players.map(p=>({...p,manualPoints:+document.getElementById('pts_'+p.id).value||0,manualPreds:+document.getElementById('pred_'+p.id).value||0,manualGdHits:+document.getElementById('gd_'+p.id).value||0}));localStorage.setItem(STORAGE_KEY,JSON.stringify(players));toast('Saved. Stats updated.');render()}
-function resetData(){remainingGames=DEFAULT_GAMES_LEFT;localStorage.setItem(GAMES_KEY,String(remainingGames));players=JSON.parse(JSON.stringify(START));predictions=[];actuals={};localStorage.setItem(STORAGE_KEY,JSON.stringify(players));localStorage.setItem(PRED_KEY,JSON.stringify(predictions));localStorage.setItem(ACTUAL_KEY,JSON.stringify(actuals));toast('Reset done.');render()}
-function downloadPage(){saveFromInputs();let html=document.documentElement.outerHTML;html=html.replace(/const DEFAULT_GAMES_LEFT=\d+;/,'const DEFAULT_GAMES_LEFT='+remainingGames+';');html=html.replace(/const START=\[[\s\S]*?\];/,'const START='+JSON.stringify(players,null,1)+';');html=html.replace(/let predictions=JSON\.parse\(localStorage\.getItem\(PRED_KEY\)\|\|'\[\]'\);/,'let predictions=JSON.parse(localStorage.getItem(PRED_KEY)||'+JSON.stringify(JSON.stringify(predictions))+');');html=html.replace(/let actuals=JSON\.parse\(localStorage\.getItem\(ACTUAL_KEY\)\|\|'\{\}'\);/,'let actuals=JSON.parse(localStorage.getItem(ACTUAL_KEY)||'+JSON.stringify(JSON.stringify(actuals))+');');const blob=new Blob([html],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='index.html';a.click();URL.revokeObjectURL(a.href)}
+async function saveActualScore(){const id=document.getElementById('actualFixture').value; const h=document.getElementById('actualHome').value; const a=document.getElementById('actualAway').value; const winner=document.getElementById('actualWinner')?.value||''; if(h===''||a===''){toast('Enter both actual scores.');return;} if(+h===+a&&!winner){toast('Draw score: choose actual winner/advancer.');return;} if(actuals[id]&&!confirm('Actual score already exists. Update it?'))return; actuals[id]={home:+h,away:+a,winner,savedAt:Date.now()}; const ok=await saveCloudData('Actual score saved to cloud.'); if(!ok)return; document.getElementById('actualHome').value='';document.getElementById('actualAway').value='';syncWinnerSelects();render();}
+async function savePrediction(){const playerId=document.getElementById('pickPlayer').value; const fixtureId=document.getElementById('pickFixture').value; const h=document.getElementById('pickHome').value; const a=document.getElementById('pickAway').value; const winner=document.getElementById('pickWinner')?.value||''; if(h===''||a===''){toast('Enter both prediction scores.');return;} if(+h===+a&&!winner){toast('Draw prediction: choose who advances.');return;} const pl=players.find(p=>p.id===playerId); const old=predictions.find(p=>p.playerId===playerId&&p.fixtureId===fixtureId); if(old&&!confirm('This player already has a pick for this fixture. Update it?'))return; if(old){old.home=+h;old.away=+a;old.winner=winner;old.playerName=pl.name;old.updatedAt=Date.now();} else predictions.push({id:'p_'+Date.now()+'_'+Math.random().toString(16).slice(2),playerId,playerName:pl.name,fixtureId,home:+h,away:+a,winner,createdAt:Date.now()}); const ok=await saveCloudData('Prediction saved to cloud.'); if(!ok)return; document.getElementById('pickHome').value='';document.getElementById('pickAway').value='';syncWinnerSelects();render();}
+async function addPlayer(){const input=document.getElementById('newPlayerName'); const name=(input?.value||'').trim(); if(!name){toast('Enter a player name.');return;} const exists=players.some(p=>p.name.toLowerCase()===name.toLowerCase()); if(exists){toast('That player is already in the league.');return;} const id='player_'+name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')+'_'+Date.now().toString(36); players.push({id,name,manualPreds:0,manualPoints:0,manualGdHits:0}); const ok=await saveCloudData(name+' added to cloud.'); if(!ok)return; if(input)input.value=''; render();}
+async function saveFromInputs(){remainingGames=+document.getElementById('gamesLeftInput').value||0;players=players.map(p=>({...p,manualPoints:+document.getElementById('pts_'+p.id).value||0,manualPreds:+document.getElementById('pred_'+p.id).value||0,manualGdHits:+document.getElementById('gd_'+p.id).value||0})); const ok=await saveCloudData(); if(ok)render()}
+async function resetData(){if(!confirm('Reset the shared cloud league data for everyone?'))return;remainingGames=DEFAULT_GAMES_LEFT;players=JSON.parse(JSON.stringify(START));predictions=[];actuals={}; const ok=await saveCloudData('Shared cloud data reset.'); if(ok)render()}
+async function downloadPage(){await saveFromInputs();const blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='index.html';a.click();URL.revokeObjectURL(a.href)}
 function toast(t){let el=document.getElementById('toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',2200)}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active')});
 render();
+if(initFirebase())loadCloudData();
 </script>
 </body></html>
