@@ -8,21 +8,21 @@
 :root{--bg:#07111f;--card:#101c31;--card2:#13243f;--text:#f8fbff;--muted:#9fb0c8;--line:rgba(255,255,255,.12);--a:#49f0c5;--b:#ffd166;--r:#ff6b7a;--p:#b892ff}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 10% 0,#173f70 0,#07111f 42%,#030711 100%);color:var(--text)}
 .wrap{max-width:1100px;margin:auto;padding:16px 12px 70px}.hero{border:1px solid var(--line);border-radius:28px;padding:22px;background:linear-gradient(135deg,rgba(73,240,197,.17),rgba(255,209,102,.10),rgba(184,146,255,.10)),rgba(255,255,255,.05);box-shadow:0 20px 60px #0008}.eyebrow{color:var(--a);font-weight:900;letter-spacing:.12em;text-transform:uppercase;font-size:12px}.hero h1{font-size:clamp(30px,8vw,64px);line-height:.9;margin:10px 0}.hero p{margin:0;color:#d7e3f7;line-height:1.45}.prize{display:inline-block;margin-top:14px;background:rgba(255,209,102,.13);border:1px solid rgba(255,209,102,.35);border-radius:999px;padding:9px 12px;color:#ffe6a8;font-weight:900}
-.grid{display:grid;gap:12px}.kpis{grid-template-columns:repeat(5,1fr);margin:14px 0}.card{background:rgba(16,28,49,.84);border:1px solid var(--line);border-radius:22px;padding:15px;backdrop-filter:blur(8px)}.label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:900}.value{font-size:30px;font-weight:1000;margin-top:5px}.small,.mini{color:var(--muted);font-size:13px;margin-top:4px}.two{grid-template-columns:1.45fr .85fr}.three{grid-template-columns:repeat(3,1fr)}.noteGrid{grid-template-columns:repeat(2,1fr)}
+.grid{display:grid;gap:12px}.kpis{grid-template-columns:repeat(5,1fr);margin:14px 0}.card{background:rgba(16,28,49,.84);border:1px solid var(--line);border-radius:22px;padding:15px;backdrop-filter:blur(8px)}.label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:900}.value{font-size:30px;font-weight:1000;margin-top:5px}.small,.mini{color:var(--muted);font-size:13px;margin-top:4px}.two{grid-template-columns:1.45fr .85fr}.three{grid-template-columns:repeat(3,1fr)}.lockGrid{grid-template-columns:repeat(2,1fr)}
 .tabs{display:flex;gap:8px;position:sticky;top:0;padding:10px 0;background:linear-gradient(180deg,#07111f 70%,transparent);z-index:5;overflow:auto}.tab{white-space:nowrap;border:1px solid var(--line);background:rgba(255,255,255,.07);color:#e8f0ff;border-radius:999px;padding:10px 13px;font-weight:900;cursor:pointer}.tab.active{background:var(--a);color:#06111d;border-color:transparent}.panel{display:none}.panel.active{display:grid}
 table{width:100%;border-collapse:collapse}th,td{padding:12px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:14px}th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.player{display:flex;gap:9px;align-items:center}.avatar{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(73,240,197,.35),rgba(255,209,102,.25));font-weight:1000}.pill{display:inline-block;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:900;background:rgba(255,255,255,.08)}.gold{background:rgba(255,209,102,.18);color:#ffe6a8}.green{background:rgba(73,240,197,.15);color:#b7fff0}.red{background:rgba(255,107,122,.13);color:#ffc7ce}.purple{background:rgba(184,146,255,.15);color:#e2d5ff}.bar{height:8px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--a),var(--b))}.bigbar{height:16px}.leader{font-size:42px;font-weight:1000;margin:8px 0}.rank1 td{background:rgba(255,209,102,.05)}
 .controls{display:grid;gap:10px}.row{display:grid;grid-template-columns:1.2fr .8fr .8fr .9fr;gap:8px;align-items:center}.row input,textarea{width:100%;background:#081326;color:var(--text);border:1px solid var(--line);border-radius:13px;padding:11px;font:inherit}textarea{min-height:90px;resize:vertical}button{border:0;border-radius:13px;background:var(--a);color:#06111d;font-weight:1000;padding:11px 13px;cursor:pointer}.secondary{background:rgba(255,255,255,.08);border:1px solid var(--line);color:#fff}.note{color:#c3d0e5;font-size:13px;line-height:1.5}.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);padding:10px 14px;border-radius:999px;background:#111c31;border:1px solid var(--line);display:none}.chartLine{display:grid;grid-template-columns:92px 1fr 46px;gap:8px;align-items:center;margin:10px 0}.rankBadge{font-size:18px;margin-right:4px}.pieWrap{display:grid;place-items:center;gap:12px}.pie{width:190px;height:190px;border-radius:50%;background:conic-gradient(var(--a) 0 0);box-shadow:inset 0 0 0 38px rgba(16,28,49,.95),0 12px 35px #0006;border:1px solid var(--line)}.legend{width:100%}.legendItem{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:7px 0}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:7px}
-@media(max-width:900px){.kpis,.two,.three,.row,.noteGrid{grid-template-columns:1fr}.card{border-radius:18px}th,td{padding:10px 6px;font-size:13px}.hide-sm{display:none}.value{font-size:25px}.wrap{padding-inline:10px}.panel.active{display:grid}.chartLine{grid-template-columns:78px 1fr 40px}}
+@media(max-width:900px){.kpis,.two,.three,.row,.lockGrid{grid-template-columns:1fr}.card{border-radius:18px}th,td{padding:10px 6px;font-size:13px}.hide-sm{display:none}.value{font-size:25px}.wrap{padding-inline:10px}.panel.active{display:grid}.chartLine{grid-template-columns:78px 1fr 40px}}
 </style>
 </head>
 <body><div class="wrap">
-<section class="hero"><div class="eyebrow">World Cup 26</div><h1>Prediction League Dashboard</h1><p>Seven friends. Exact-score predictions. Most points at the end wins a custom World Cup 26 jersey with name and number on the back.</p><div class="prize">🏆 Prize: World Cup 26 jersey of choice</div></section>
+<section class="hero"><div class="eyebrow">World Cup 26</div><h1>Prediction League Dashboard</h1><p>Eight friends. Exact-score predictions. Most points at the end wins a custom World Cup 26 jersey with name and number on the back.</p><div class="prize">🏆 Prize: World Cup 26 jersey of choice</div></section>
 <section id="kpis" class="grid kpis"></section>
-<nav class="tabs"><button class="tab active" data-tab="standings">Standings</button><button class="tab" data-tab="insights">Insights</button><button class="tab" data-tab="notes">Player Notes</button><button class="tab" data-tab="update">Update</button></nav>
+<nav class="tabs"><button class="tab active" data-tab="standings">Standings</button><button class="tab" data-tab="insights">Insights</button><button class="tab" data-tab="lockins">Score Lock-ins</button><button class="tab" data-tab="update">Update</button></nav>
 <main>
 <section id="standings" class="panel active two"><div class="card"><div class="label">League table</div><div id="table"></div></div><div class="card"><div class="label">Current leader after tie-breakers</div><div id="leader"></div></div></section>
-<section id="insights" class="panel three"><div class="card"><div class="label">Most likely to win</div><div id="odds"></div></div><div class="card"><div class="label">Watch out for</div><div id="watch"></div></div><div class="card"><div class="label">Fun awards</div><div id="awards"></div></div><div class="card"><div class="label">Momentum</div><div id="momentum"></div></div><div class="card"><div class="label">Projection board</div><div id="projection"></div></div><div class="card"><div class="label">Points share</div><div id="pointsPie"></div></div><div class="card"><div class="label">Standing insights</div><div id="standingInsights"></div></div><div class="card"><div class="label">Remaining games tracker</div><div id="remainingTracker"></div></div><div class="card"><div class="label">Stat lab</div><div id="statlab"></div></div></section>
-<section id="notes" class="panel"><div class="card"><div class="label">Player notes</div><p class="note">Each player can write their own note here — hype, jokes, predictions, promises, or whatever they want. Hit Save Notes, then Download HTML when you want those notes baked into the file you upload to GitHub.</p><div id="playerNotes" class="grid noteGrid"></div><br><button onclick="saveNotes()">Save notes</button></div></section>
+<section id="insights" class="panel three"><div class="card" style="grid-column:1/-1"><div class="label">Auto analyst</div><div id="autoAnalyst"></div></div><div class="card"><div class="label">Most likely to win</div><div id="odds"></div></div><div class="card"><div class="label">Watch out for</div><div id="watch"></div></div><div class="card"><div class="label">Fun awards</div><div id="awards"></div></div><div class="card"><div class="label">Standing insights</div><div id="standingInsights"></div></div><div class="card"><div class="label">Stat lab</div><div id="statlab"></div></div><div class="card"><div class="label">Analyst banter</div><div id="banter"></div></div></section>
+<section id="lockins" class="panel two"><div class="card"><div class="label">Score lock-ins</div><p class="note">Use this for prediction receipts before matches. Each player can lock at least two scores per day using Match Slot 1 and Match Slot 2. Locked scores are shown on the board and cannot be removed for 20 hours in this browser.</p><div class="row" style="grid-template-columns:1fr .8fr 1.2fr .8fr .8fr"><select id="lockPlayer"></select><select id="lockSlot"><option value="Match Slot 1">Match Slot 1</option><option value="Match Slot 2">Match Slot 2</option></select><input id="lockMatch" placeholder="Match e.g. Brazil vs Spain"><input id="lockScore" placeholder="Score e.g. 2-1"><button onclick="addLockin()">Lock score</button></div><br><div id="lockinList" class="grid lockGrid"></div></div><div class="card"><div class="label">Lock rule</div><p class="note"><b>Lock period:</b> 20 hours after submission.</p><p class="note">Locked scores are visible immediately on the lock-in board. On a normal static GitHub Pages site, browser lock-ins do not automatically sync across everyone’s phones. For everyone to submit from their own phone and have it instantly visible to all, this would need a shared backend such as Google Forms/Sheets, Firebase, or Supabase.</p></div></section>
 <section id="update" class="panel two"><div class="card"><div class="label">Manual update</div><p class="note">Only change these numbers: <b>Games left</b>, plus each player’s <b>Points</b>, <b>Predictions made</b>, and <b>same goal-difference hits</b>. Everything else updates automatically.</p><div class="row" style="grid-template-columns:1.2fr .8fr"><b>Games left</b><input type="number" min="0" id="gamesLeftInput" value="16" placeholder="Games left"></div><br><div id="controls" class="controls"></div><br><button onclick="saveFromInputs()">Save changes</button> <button class="secondary" onclick="resetData()">Reset to current scores</button> <button class="secondary" onclick="downloadPage()">Download HTML</button></div><div class="card"><div class="label">Scoring note</div><p class="note">Right now, 1 point = 1 correct exact score. Same goal-difference hits are manual close-score stats, like predicting 2-1 when the real score was 1-0. Ranking order is: points first, then goal-difference hits, then more predictions made, then alphabetical.</p><p class="note"><b>Projection setup:</b> change Games left in the Update tab whenever the tournament moves forward. Projected points and possible predictions will follow that number.</p></div></section>
 </main></div><div id="toast" class="toast"></div>
 <script>
@@ -33,16 +33,16 @@ const START=[
  {id:'roxy',name:'Roxy',preds:6,points:1,gdHits:1},
  {id:'diki',name:'Lil Diki',preds:3,points:0,gdHits:0},
  {id:'ghos',name:'Big Ghos',preds:3,points:0,gdHits:0},
- {id:'risky',name:'Risky',preds:0,points:0,gdHits:0}
+ {id:'risky',name:'Risky',preds:0,points:0,gdHits:0},
+ {id:'debez',name:'Big Debz',preds:0,points:0,gdHits:0}
 ];
-const DEFAULT_NOTES={kaky:'',party:'',porky:'',roxy:'',diki:'',ghos:'',risky:''};
 const STORAGE_KEY='wc26_simple_players_v7';
-const NOTES_KEY='wc26_player_notes_v2';
+const LOCK_KEY='wc26_score_lockins_v1';
 const DEFAULT_GAMES_LEFT=16;
 const GAMES_KEY='wc26_games_left_v1';
 let remainingGames=+localStorage.getItem(GAMES_KEY)||DEFAULT_GAMES_LEFT;
 let players=JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(START)).map(p=>({...p,gdHits:p.gdHits||0}));
-let notes=JSON.parse(localStorage.getItem(NOTES_KEY)||JSON.stringify(DEFAULT_NOTES));
+let lockins=JSON.parse(localStorage.getItem(LOCK_KEY)||'[]');
 function calc(){
  const maxPreds=Math.max(...players.map(p=>p.preds),1);
  return players.map(p=>{
@@ -59,48 +59,89 @@ function calc(){
 }
 function pct(n){return `${n.toFixed(1)}%`}
 function medal(i){return i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)}
+function escapeHtml(v){return String(v).replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]))}
+function msLeft(ts){return Math.max(0,ts-Date.now())}
+function hoursLeft(ts){return (msLeft(ts)/36e5).toFixed(1)}
 function render(){
  const rows=calc(), leader=rows[0], avgAcc=rows.reduce((s,p)=>s+p.acc,0)/rows.length;
  const topPoints=Math.max(...rows.map(p=>p.points));
  const pointsLeaders=rows.filter(p=>p.points===topPoints).map(p=>p.name).join(', ');
- const mostExcited=[...rows].sort((a,b)=>b.preds-a.preds||b.points-a.points)[0];
- const efficiency=[...rows].filter(p=>p.preds>0).sort((a,b)=>b.acc-a.acc||b.points-a.points)[0] || rows[0];
- const gdGuru=[...rows].sort((a,b)=>b.gdHits-a.gdHits||b.points-a.points||b.preds-a.preds)[0];
+ const mostExcited=[...rows].sort((a,b)=>b.preds-a.preds||b.points-a.points||a.name.localeCompare(b.name))[0];
+ const efficiency=[...rows].filter(p=>p.preds>0).sort((a,b)=>b.acc-a.acc||b.points-a.points||a.name.localeCompare(b.name))[0] || rows[0];
+ const gdGuru=[...rows].sort((a,b)=>b.gdHits-a.gdHits||b.points-a.points||b.preds-a.preds||a.name.localeCompare(b.name))[0];
  const totalGd=rows.reduce((s,p)=>s+p.gdHits,0), totalPreds=rows.reduce((s,p)=>s+p.preds,0);
- document.getElementById('kpis').innerHTML=`<div class="card"><div class="label">Current leader</div><div class="value">${leader.name}</div><div class="small">Points leaders: ${pointsLeaders}</div></div><div class="card"><div class="label">Players</div><div class="value">${rows.length}</div><div class="small">Seven friends in the league</div></div><div class="card"><div class="label">Remaining WC26 games</div><div class="value">${remainingGames}</div><div class="small">Manual setting</div></div><div class="card"><div class="label">Predictions logged</div><div class="value">${totalPreds}</div><div class="small">Most active: ${mostExcited.name}</div></div><div class="card"><div class="label">League accuracy</div><div class="value">${pct(avgAcc)}</div><div class="small">Goal-diff hits: ${totalGd}</div></div>`;
+ document.getElementById('kpis').innerHTML=`<div class="card"><div class="label">Current leader</div><div class="value">${leader.name}</div><div class="small">Points leaders: ${pointsLeaders}</div></div><div class="card"><div class="label">Players</div><div class="value">${rows.length}</div><div class="small">Eight friends in the league</div></div><div class="card"><div class="label">Games left</div><div class="value">${remainingGames}</div><div class="small">Manual setting</div></div><div class="card"><div class="label">Predictions logged</div><div class="value">${totalPreds}</div><div class="small">Most active: ${mostExcited.name}</div></div><div class="card"><div class="label">League accuracy</div><div class="value">${pct(avgAcc)}</div><div class="small">Goal-diff hits: ${totalGd}</div></div>`;
  document.getElementById('table').innerHTML=`<table><thead><tr><th>#</th><th>Player</th><th>Pts</th><th>GD</th><th>Preds</th><th>Accuracy</th><th class="hide-sm">Possible now</th><th class="hide-sm">Projected pts</th></tr></thead><tbody>${rows.map((p,i)=>`<tr class="${i===0?'rank1':''}"><td><span class="rankBadge">${medal(i)}</span></td><td><div class="player"><div class="avatar">${p.name[0]}</div><div><b>${p.name}</b><div class="small">${i===0?'🔥 current leader':p.points===topPoints?'tied on points':'chasing'}</div></div></div></td><td><span class="pill gold">${p.points}</span></td><td><span class="pill green">${p.gdHits}</span></td><td>${p.preds}</td><td><div>${pct(p.acc)}</div><div class="bar"><i style="width:${Math.min(100,p.acc)}%"></i></div></td><td class="hide-sm">${p.maxPredsPossible}</td><td class="hide-sm">${p.projected.toFixed(1)}</td></tr>`).join('')}</tbody></table>`;
- document.getElementById('leader').innerHTML=`<div class="leader">${leader.name}</div><p class="note"><b>${leader.name}</b> leads after the full tie-breaker stack: points → GD hits → more predictions made → alphabetical.</p><p><span class="pill gold">${leader.points} point${leader.points==1?'':'s'}</span> <span class="pill green">${leader.gdHits} GD hit${leader.gdHits==1?'':'s'}</span> <span class="pill purple">${leader.preds} predictions</span></p><p class="note">Projected finish at current pace: <b>${leader.projected.toFixed(1)} points</b>.</p>`;
+ document.getElementById('leader').innerHTML=`<div class="leader">${leader.name}</div><p class="note"><b>${leader.name}</b> leads after the tie-breaker stack: points → GD hits → more predictions made → alphabetical.</p><p><span class="pill gold">${leader.points} point${leader.points==1?'':'s'}</span> <span class="pill green">${leader.gdHits} GD hit${leader.gdHits==1?'':'s'}</span> <span class="pill purple">${leader.preds} predictions</span></p><p class="note">Projected finish at current pace: <b>${leader.projected.toFixed(1)} points</b>.</p>`;
  const oddsTotal=rows.reduce((s,p)=>s+p.odds,0)||1;
  document.getElementById('odds').innerHTML=rows.map(p=>`<div class="chartLine"><b>${p.name}</b><div class="bar"><i style="width:${100*p.odds/oddsTotal}%"></i></div><span class="pill green">${pct(100*p.odds/oddsTotal)}</span></div>`).join('');
- const watch=rows.filter(p=>p.name!==leader.name).sort((a,b)=>b.projected-a.projected||b.gdHits-a.gdHits||b.preds-a.preds)[0]||leader;
+ const watch=rows.filter(p=>p.name!==leader.name).sort((a,b)=>b.projected-a.projected||b.gdHits-a.gdHits||b.preds-a.preds||a.name.localeCompare(b.name))[0]||leader;
  document.getElementById('watch').innerHTML=`<h2>${watch.name}</h2><p class="note">Watch out for ${watch.name}: projected ${watch.projected.toFixed(1)} points, ${watch.gdHits} GD hit${watch.gdHits==1?'':'s'}, and ${watch.maxPredsPossible} total possible predictions if they play every remaining match.</p>`;
  const underdog=[...rows].reverse().find(p=>p.preds<mostExcited.preds)||rows[rows.length-1];
  const pressure=rows.filter(p=>p.points===topPoints).length>1?'The top is crowded — one exact score can flip the whole table.':'The leader has separation, but one exact score still changes the vibe.';
  document.getElementById('awards').innerHTML=`<p>🎮 <b>Most excited to play:</b><br>${mostExcited.name} with ${mostExcited.preds} predictions.</p><p>🎯 <b>Efficiency king:</b><br>${efficiency.name} at ${pct(efficiency.acc)} accuracy.</p><p>📐 <b>Goal-difference guru:</b><br>${gdGuru.gdHits?gdGuru.name+' with '+gdGuru.gdHits+' hits':'No goal-diff hits logged yet.'}</p><p>🐺 <b>Sleeping giant:</b><br>${underdog.name} still has room to climb.</p><p>🌶️ <b>Drama level:</b><br>${pressure}</p>`;
- document.getElementById('momentum').innerHTML=rows.map(p=>`<p><b>${p.name}</b><br><span class="small">${p.points>0?'✅ on the board':'⏳ hunting first point'} • ${p.gdHits>0?'🧠 close-score threat':'needs GD hits logged'} • ${p.preds>=mostExcited.preds?'🎮 very active':'room to submit more'} • projected ${p.projected.toFixed(1)}</span></p>`).join('');
- document.getElementById('projection').innerHTML=rows.map(p=>`<div class="chartLine"><b>${p.name}</b><div class="bar bigbar"><i style="width:${Math.max(3,100*p.projected/Math.max(...rows.map(x=>x.projected),1))}%"></i></div><span>${p.projected.toFixed(1)}</span></div><p class="small">Current ${p.points} + pace ${p.pace.toFixed(2)} × ${remainingGames} games</p>`).join('');
- const totalPoints=rows.reduce((s,p)=>s+p.points,0);
- const pieColors=['var(--a)','var(--b)','var(--p)','var(--r)','#7bdff2','#f7aef8','#b2f7ef'];
- let start=0;
- const slices=rows.map((p,i)=>{let part=totalPoints? p.points/totalPoints*100 : 100/rows.length; let seg=`${pieColors[i%pieColors.length]} ${start}% ${start+part}%`; start+=part; return seg;}).join(',');
- document.getElementById('pointsPie').innerHTML=`<div class="pieWrap"><div class="pie" style="background:conic-gradient(${slices})"></div><div class="legend">${rows.map((p,i)=>`<div class="legendItem"><span><i class="dot" style="background:${pieColors[i%pieColors.length]}"></i>${p.name}</span><b>${p.points} pts</b></div>`).join('')}</div><p class="small">Share of all exact-score points currently on the board.</p></div>`;
  const spread=rows[0].points-rows[rows.length-1].points;
- const nearest=rows.filter(p=>p.name!==leader.name).sort((a,b)=>(leader.points-a.points)-(leader.points-b.points)||b.gdHits-a.gdHits)[0];
+ const nearest=rows.filter(p=>p.name!==leader.name).sort((a,b)=>(leader.points-a.points)-(leader.points-b.points)||b.gdHits-a.gdHits||b.preds-a.preds)[0];
  const activePack=rows.filter(p=>p.preds===mostExcited.preds).map(p=>p.name).join(', ');
  document.getElementById('standingInsights').innerHTML=`<p>🏁 <b>Table gap:</b><br>${spread} point${spread==1?'':'s'} separate first and last.</p><p>👀 <b>Nearest challenger:</b><br>${nearest?nearest.name+' is closest to '+leader.name:'No challenger yet'}.</p><p>🎮 <b>Most active pack:</b><br>${activePack}</p><p>⚖️ <b>Tie-break watch:</b><br>${gdGuru.name} has the strongest GD-hit profile right now.</p>`;
- document.getElementById('remainingTracker').innerHTML=rows.map(p=>`<p><b>${p.name}</b> <span class="pill green">${p.maxPredsPossible} possible predictions</span></p><div class="bar"><i style="width:${Math.min(100,100*p.preds/Math.max(1,p.maxPredsPossible))}%"></i></div><p class="small">${p.preds} already made + ${remainingGames} still possible</p>`).join('');
  const zeroClub=rows.filter(p=>p.preds===0).map(p=>p.name).join(', ') || 'Nobody';
  const needsExact=rows.filter(p=>p.points===0 && p.preds>0).map(p=>p.name).join(', ') || 'Nobody';
  const closestPack=rows.filter(p=>p.gdHits>0).sort((a,b)=>b.gdHits-a.gdHits||b.preds-a.preds).map(p=>`${p.name} (${p.gdHits})`).join(', ') || 'No GD hits yet';
- document.getElementById('statlab').innerHTML=`<p>🧊 <b>Yet to enter:</b><br>${zeroClub}</p><p>🔓 <b>Needs first exact score:</b><br>${needsExact}</p><p>📐 <b>Closest-score crew:</b><br>${closestPack}</p><p>🔮 <b>Projection rule:</b><br>Projected points = current points + exact-score pace × ${remainingGames} remaining games.</p>`;
- renderControls(); renderNotes();
+ document.getElementById('statlab').innerHTML=`<p>🧊 <b>Yet to enter:</b><br>${zeroClub}</p><p>🔓 <b>Needs first exact score:</b><br>${needsExact}</p><p>📐 <b>Closest-score crew:</b><br>${closestPack}</p><p>🔮 <b>Projection rule:</b><br>Projected points = current points + exact-score pace × ${remainingGames} games left.</p>`;
+ const analyst=[];
+ const chasers=rows.filter(p=>p.name!==leader.name);
+ const onePointAway=chasers.filter(p=>p.points+1>leader.points || (p.points+1===leader.points && (p.gdHits>leader.gdHits || (p.gdHits===leader.gdHits && p.preds>=leader.preds))));
+ if(onePointAway.length) analyst.push(`⚡ <b>One-hit takeover watch:</b> ${onePointAway.map(p=>p.name).join(', ')} can jump into first with one exact score, depending on GD hits and prediction count.`);
+ const gdThreat=chasers.filter(p=>p.points===leader.points && p.gdHits<leader.gdHits).sort((a,b)=>leader.gdHits-a.gdHits)[0];
+ if(gdThreat) analyst.push(`📐 <b>GD chase:</b> ${gdThreat.name} is level on points but needs ${leader.gdHits-gdThreat.gdHits} more GD hit${leader.gdHits-gdThreat.gdHits===1?'':'s'} to match ${leader.name}'s tie-break cushion.`);
+ const inactive=rows.filter(p=>p.preds===0).map(p=>p.name);
+ if(inactive.length) analyst.push(`🕵️ <b>Mystery entrants:</b> ${inactive.join(', ')} have not predicted yet, so their ceiling depends completely on whether they start playing.`);
+ const lessPlayed=rows.filter(p=>p.preds>0 && p.preds<mostExcited.preds).sort((a,b)=>a.preds-b.preds).map(p=>p.name);
+ if(lessPlayed.length) analyst.push(`🎮 <b>Games-in-hand vibe:</b> ${lessPlayed.join(', ')} have played less than the most active pack, so more submissions could change their story quickly.`);
+ const overtakeText=rows.slice(1).map(p=>{let needPts=Math.max(0,leader.points-p.points+1); if(p.points===leader.points){if(p.gdHits<leader.gdHits) return `${p.name}: needs ${leader.gdHits-p.gdHits} GD hit${leader.gdHits-p.gdHits===1?'':'s'} or 1 exact score to pass ${leader.name}`; if(p.gdHits===leader.gdHits && p.preds<leader.preds) return `${p.name}: needs ${leader.preds-p.preds} more prediction${leader.preds-p.preds===1?'':'s'} or 1 exact score to pass ${leader.name}`;} return `${p.name}: needs ${needPts} exact-score point${needPts===1?'':'s'} to move ahead of ${leader.name}`;}).slice(0,7).join('<br>');
+ analyst.push(`🧮 <b>Path to top:</b><br>${overtakeText}`);
+ document.getElementById('autoAnalyst').innerHTML=analyst.map(x=>`<p class="note">${x}</p>`).join('');
+ const banter=[];
+ if(gdGuru.gdHits>0) banter.push(`📐 ${gdGuru.name} is reading goal difference like it is a secret menu.`);
+ if(mostExcited.preds>0) banter.push(`🎮 ${mostExcited.name} is treating the prediction sheet like daily cardio.`);
+ if(rows.some(p=>p.points===0 && p.preds>0)) banter.push(`🍀 The zero-point crew is not finished — they are just building dramatic tension.`);
+ if(rows.filter(p=>p.points===topPoints).length>1) banter.push(`🍿 The top of the table is so tight even the tie-breakers need tie-breakers.`);
+ if(inactive.length) banter.push(`👀 ${inactive.join(' and ')} are still in stealth mode. Bold strategy.`);
+ document.getElementById('banter').innerHTML=banter.map(x=>`<p class="note">${x}</p>`).join('') || '<p class="note">No banter yet — the table is behaving suspiciously normal.</p>';
+ renderControls(); renderLockins();
 }
 function renderControls(){const g=document.getElementById('gamesLeftInput'); if(g) g.value=remainingGames; document.getElementById('controls').innerHTML=players.map(p=>`<div class="row"><b>${p.name}</b><input type="number" min="0" id="pts_${p.id}" value="${p.points}" placeholder="Points"><input type="number" min="0" id="pred_${p.id}" value="${p.preds}" placeholder="Predictions"><input type="number" min="0" id="gd_${p.id}" value="${p.gdHits||0}" placeholder="GD hits"></div>`).join('')}
-function renderNotes(){document.getElementById('playerNotes').innerHTML=players.map(p=>`<div class="card"><b>${p.name}</b><p class="mini">Player note</p><textarea id="note_${p.id}" placeholder="${p.name}, write your note here...">${notes[p.id]||''}</textarea></div>`).join('')}
-function saveNotes(){players.forEach(p=>{const el=document.getElementById('note_'+p.id); if(el) notes[p.id]=el.value});localStorage.setItem(NOTES_KEY,JSON.stringify(notes));toast('Notes saved.')}
+function renderLockins(){
+ const sel=document.getElementById('lockPlayer');
+ if(sel) sel.innerHTML=players.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+ const list=document.getElementById('lockinList');
+ if(!list) return;
+ if(!lockins.length){list.innerHTML='<p class="note">No locked scores yet.</p>'; return;}
+ list.innerHTML=lockins.slice().reverse().map(l=>{
+   const locked=msLeft(l.unlockAt)>0;
+   return `<div class="card"><b>${escapeHtml(l.playerName)}</b><p class="mini">${escapeHtml(l.slot||'Match Slot')} • ${escapeHtml(l.match)} • ${new Date(l.createdAt).toLocaleString()}</p><div class="value">${escapeHtml(l.score)}</div><p class="note">${locked?'🔒 Locked for '+hoursLeft(l.unlockAt)+' more hours':'🔓 20-hour lock expired'}</p>${locked?'':`<button class="secondary" onclick="deleteLockin('${l.id}')">Remove</button>`}</div>`;
+ }).join('');
+}
+function addLockin(){
+ const pid=document.getElementById('lockPlayer').value;
+ const pl=players.find(p=>p.id===pid)||players[0];
+ const match=document.getElementById('lockMatch').value.trim();
+ const slot=document.getElementById('lockSlot').value;
+ const score=document.getElementById('lockScore').value.trim();
+ if(!match||!score){toast('Add match and score first.');return;}
+ const now=Date.now();
+ lockins.push({id:'l_'+now+'_'+Math.random().toString(16).slice(2),playerId:pl.id,playerName:pl.name,slot,match,score,createdAt:now,unlockAt:now+20*60*60*1000});
+ localStorage.setItem(LOCK_KEY,JSON.stringify(lockins));
+ document.getElementById('lockMatch').value='';document.getElementById('lockScore').value='';
+ toast('Score locked for 20 hours.');renderLockins();
+}
+function deleteLockin(id){
+ const l=lockins.find(x=>x.id===id); if(l && msLeft(l.unlockAt)>0){toast('Still locked.');return;}
+ lockins=lockins.filter(x=>x.id!==id);localStorage.setItem(LOCK_KEY,JSON.stringify(lockins));toast('Removed.');renderLockins();
+}
 function saveFromInputs(){remainingGames=+document.getElementById('gamesLeftInput').value||0;localStorage.setItem(GAMES_KEY,String(remainingGames));players=players.map(p=>({...p,points:+document.getElementById('pts_'+p.id).value||0,preds:+document.getElementById('pred_'+p.id).value||0,gdHits:+document.getElementById('gd_'+p.id).value||0}));localStorage.setItem(STORAGE_KEY,JSON.stringify(players));toast('Saved. Stats updated.');render()}
-function resetData(){remainingGames=DEFAULT_GAMES_LEFT;localStorage.setItem(GAMES_KEY,String(remainingGames));players=JSON.parse(JSON.stringify(START));notes=JSON.parse(JSON.stringify(DEFAULT_NOTES));localStorage.setItem(STORAGE_KEY,JSON.stringify(players));localStorage.setItem(NOTES_KEY,JSON.stringify(notes));toast('Reset done.');render()}
-function downloadPage(){saveFromInputs();saveNotes();let html=document.documentElement.outerHTML;html=html.replace(/const DEFAULT_GAMES_LEFT=\d+;/, 'const DEFAULT_GAMES_LEFT='+remainingGames+';');html=html.replace(/const START=\[[\s\S]*?\];/, 'const START='+JSON.stringify(players,null,1)+';');html=html.replace(/const DEFAULT_NOTES=\{[\s\S]*?\};/, 'const DEFAULT_NOTES='+JSON.stringify(notes,null,1)+';');const blob=new Blob([html],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='index.html';a.click();URL.revokeObjectURL(a.href)}
+function resetData(){remainingGames=DEFAULT_GAMES_LEFT;localStorage.setItem(GAMES_KEY,String(remainingGames));players=JSON.parse(JSON.stringify(START));lockins=[];localStorage.setItem(STORAGE_KEY,JSON.stringify(players));localStorage.setItem(LOCK_KEY,JSON.stringify(lockins));toast('Reset done.');render()}
+function downloadPage(){saveFromInputs();let html=document.documentElement.outerHTML;html=html.replace(/const DEFAULT_GAMES_LEFT=\d+;/, 'const DEFAULT_GAMES_LEFT='+remainingGames+';');html=html.replace(/const START=\[[\s\S]*?\];/, 'const START='+JSON.stringify(players,null,1)+';');const blob=new Blob([html],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='index.html';a.click();URL.revokeObjectURL(a.href)}
 function toast(t){let el=document.getElementById('toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',2200)}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active')});
 render();
