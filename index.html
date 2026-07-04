@@ -18,22 +18,39 @@ table{width:100%;border-collapse:collapse}th,td{padding:12px 8px;border-bottom:1
 <body><div class="wrap">
 <section class="hero"><div class="eyebrow">World Cup 26</div><h1>Prediction League Dashboard</h1><p>Eight friends. Exact-score predictions. Most points at the end wins a custom World Cup 26 jersey with name and number on the back.</p><div class="prize">🏆 Prize: World Cup 26 jersey of choice</div></section>
 <section id="kpis" class="grid kpis"></section>
-<nav class="tabs"><button class="tab active" data-tab="standings">Standings</button><button class="tab" data-tab="insights">Insights</button></nav>
+<nav class="tabs"><button class="tab active" data-tab="standings">Standings</button><button class="tab" data-tab="current">Current Predictions</button><button class="tab" data-tab="insights">Insights</button></nav>
 <main>
 <section id="standings" class="panel active two"><div class="card"><div class="label">League table</div><div id="table"></div></div><div class="card"><div class="label">Current leader after tie-breakers</div><div id="leader"></div></div></section>
+<section id="current" class="panel three"><div class="card" style="grid-column:1/-1"><div class="label">Today's current predictions</div><div id="todayOverview"></div></div><div class="card"><div class="label">Morocco vs Canada</div><div id="moroccoCanada"></div></div><div class="card"><div class="label">France vs Paraguay</div><div id="franceParaguay"></div></div><div class="card"><div class="label">Prediction drama</div><div id="predictionDrama"></div></div></section>
 <section id="insights" class="panel three"><div class="card" style="grid-column:1/-1"><div class="label">Auto analyst</div><div id="autoAnalyst"></div></div><div class="card"><div class="label">Most likely to win</div><div id="odds"></div></div><div class="card"><div class="label">Watch out for</div><div id="watch"></div></div><div class="card"><div class="label">Fun awards</div><div id="awards"></div></div><div class="card"><div class="label">Standing insights</div><div id="standingInsights"></div></div><div class="card"><div class="label">Stat lab</div><div id="statlab"></div></div><div class="card"><div class="label">Analyst banter</div><div id="banter"></div></div></section>
 
 </main></div><div id="toast" class="toast"></div>
 <script>
 const START=[
- {id:'kaky',name:'Big Kaky',manualPreds:6,manualPoints:1,manualGdHits:0},
- {id:'party',name:'Party Animal',manualPreds:6,manualPoints:0,manualGdHits:2},
- {id:'porky',name:'Porky Broman',manualPreds:6,manualPoints:1,manualGdHits:0},
- {id:'roxy',name:'Roxy',manualPreds:6,manualPoints:1,manualGdHits:1},
- {id:'diki',name:'Lil Diki',manualPreds:3,manualPoints:0,manualGdHits:0},
- {id:'ghos',name:'Big Ghos',manualPreds:3,manualPoints:0,manualGdHits:0},
- {id:'risky',name:'Risky',manualPreds:0,manualPoints:0,manualGdHits:0},
+ {id:'kaky',name:'Big Kaky',manualPreds:8,manualPoints:1,manualGdHits:0},
+ {id:'party',name:'Party Animal',manualPreds:8,manualPoints:0,manualGdHits:2},
+ {id:'porky',name:'Porky Broman',manualPreds:8,manualPoints:1,manualGdHits:0},
+ {id:'roxy',name:'Roxy',manualPreds:8,manualPoints:1,manualGdHits:1},
+ {id:'diki',name:'Lil Diki',manualPreds:5,manualPoints:0,manualGdHits:0},
+ {id:'coach',name:'Big Coach',manualPreds:5,manualPoints:0,manualGdHits:0},
+ {id:'risky',name:'Risky',manualPreds:2,manualPoints:0,manualGdHits:0},
  {id:'debz',name:'Big Debz',manualPreds:0,manualPoints:0,manualGdHits:0}
+];
+const TODAY_PREDICTIONS=[
+ {fixtureId:'mor-can',fixture:'Morocco vs Canada',playerId:'kaky',player:'Big Kaky',homeTeam:'Morocco',awayTeam:'Canada',home:2,away:1,note:'Morocco win'},
+ {fixtureId:'fra-par',fixture:'France vs Paraguay',playerId:'kaky',player:'Big Kaky',homeTeam:'France',awayTeam:'Paraguay',home:2,away:0,note:'France win'},
+ {fixtureId:'mor-can',fixture:'Morocco vs Canada',playerId:'porky',player:'Porky Broman',homeTeam:'Morocco',awayTeam:'Canada',home:2,away:0,note:'Morocco win'},
+ {fixtureId:'fra-par',fixture:'France vs Paraguay',playerId:'porky',player:'Porky Broman',homeTeam:'France',awayTeam:'Paraguay',home:3,away:1,note:'France win'},
+ {fixtureId:'mor-can',fixture:'Morocco vs Canada',playerId:'diki',player:'Lil Diki',homeTeam:'Morocco',awayTeam:'Canada',home:3,away:1,note:'Morocco win'},
+ {fixtureId:'fra-par',fixture:'France vs Paraguay',playerId:'diki',player:'Lil Diki',homeTeam:'France',awayTeam:'Paraguay',home:6,away:1,note:'France win'},
+ {fixtureId:'mor-can',fixture:'Morocco vs Canada',playerId:'party',player:'Party Animal',homeTeam:'Morocco',awayTeam:'Canada',home:1,away:0,note:'Morocco win'},
+ {fixtureId:'fra-par',fixture:'France vs Paraguay',playerId:'party',player:'Party Animal',homeTeam:'France',awayTeam:'Paraguay',home:4,away:0,note:'France win'},
+ {fixtureId:'mor-can',fixture:'Morocco vs Canada',playerId:'coach',player:'Big Coach',homeTeam:'Morocco',awayTeam:'Canada',home:2,away:1,note:'Morocco win'},
+ {fixtureId:'fra-par',fixture:'France vs Paraguay',playerId:'coach',player:'Big Coach',homeTeam:'France',awayTeam:'Paraguay',home:3,away:1,note:'France win'},
+ {fixtureId:'mor-can',fixture:'Morocco vs Canada',playerId:'risky',player:'Risky',homeTeam:'Morocco',awayTeam:'Canada',home:2,away:0,note:'Morocco win'},
+ {fixtureId:'fra-par',fixture:'France vs Paraguay',playerId:'risky',player:'Risky',homeTeam:'France',awayTeam:'Paraguay',home:4,away:0,note:'France win'},
+ {fixtureId:'mor-can',fixture:'Morocco vs Canada',playerId:'roxy',player:'Roxy',homeTeam:'Morocco',awayTeam:'Canada',home:1,away:1,note:'Draw; Morocco through on penalties'},
+ {fixtureId:'fra-par',fixture:'France vs Paraguay',playerId:'roxy',player:'Roxy',homeTeam:'France',awayTeam:'Paraguay',home:3,away:1,note:'France win'}
 ];
 const DEFAULT_GAMES_LEFT=16;
 
@@ -60,7 +77,35 @@ function calc(){
  return base.map(p=>{let acc=p.preds?100*p.points/p.preds:0;let gdRate=p.preds?100*p.gdHits/p.preds:0;let pace=p.preds?p.points/p.preds:0;let projected=p.points+(pace*remainingGames);let maxPredsPossible=p.preds+remainingGames;let commitment=p.preds/maxPreds*100;let odds=projected+(p.points*4)+(p.gdHits*2)+(p.preds*.7);return {...p,acc,gdRate,pace,projected,maxPredsPossible,commitment,odds};}).sort((a,b)=>b.points-a.points||b.gdHits-a.gdHits||b.preds-a.preds||a.name.localeCompare(b.name));
 }
 function pct(n){return `${n.toFixed(1)}%`}function medal(i){return i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)}function escapeHtml(v){return String(v).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+
+function scoreText(p){return `${escapeHtml(p.homeTeam)} ${p.home}-${p.away} ${escapeHtml(p.awayTeam)}`}
+function renderPredictionList(fixtureId){
+ const picks=TODAY_PREDICTIONS.filter(p=>p.fixtureId===fixtureId);
+ const exactGroups={}; picks.forEach(p=>{const key=`${p.home}-${p.away}`; exactGroups[key]=(exactGroups[key]||[]).concat(p.player);});
+ const popular=Object.entries(exactGroups).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0]))[0];
+ return `<div class="fixtureCard">${picks.map(p=>`<div class="mutedLine"><div class="matchTitle">${escapeHtml(p.player)}</div><div class="scoreBig">${scoreText(p)}</div><div class="small">${escapeHtml(p.note)}</div></div>`).join('')}<div class="mutedLine"><span class="pill blue">Most popular exact score: ${popular[0]} (${popular[1].join(', ')})</span></div></div>`;
+}
+function renderCurrentPredictions(){
+ const picks=TODAY_PREDICTIONS;
+ const uniquePlayers=[...new Set(picks.map(p=>p.player))];
+ const fixtures=[...new Set(picks.map(p=>p.fixture))];
+ const morPicks=picks.filter(p=>p.fixtureId==='mor-can');
+ const fraPicks=picks.filter(p=>p.fixtureId==='fra-par');
+ const moroccoWins=morPicks.filter(p=>p.home>p.away).length;
+ const moroccoDraws=morPicks.filter(p=>p.home===p.away).length;
+ const franceWins=fraPicks.filter(p=>p.home>p.away).length;
+ const franceGoals=fraPicks.reduce((s,p)=>s+p.home,0);
+ const biggestFrance=fraPicks.sort((a,b)=>(b.home-b.away)-(a.home-a.away)||b.home-a.home)[0];
+ const copiedMorocco=picks.filter(p=>p.fixtureId==='mor-can'&&p.home===2&&p.away===1).map(p=>p.player);
+ const copiedFrance=picks.filter(p=>p.fixtureId==='fra-par'&&p.home===3&&p.away===1).map(p=>p.player);
+ document.getElementById('todayOverview').innerHTML=`<h2>${uniquePlayers.length} players, ${fixtures.length} matches, ${picks.length} predictions locked in</h2><p class="note">Today is spicy: ${moroccoWins} of ${morPicks.length} picked Morocco to beat Canada, ${moroccoDraws} picked a draw, and all ${fraPicks.length} picked France to beat Paraguay.</p><p><span class="pill green">Morocco win picks: ${moroccoWins}</span> <span class="pill purple">France win picks: ${franceWins}</span> <span class="pill gold">Total France goals predicted: ${franceGoals}</span></p>`;
+ document.getElementById('moroccoCanada').innerHTML=renderPredictionList('mor-can');
+ document.getElementById('franceParaguay').innerHTML=renderPredictionList('fra-par');
+ document.getElementById('predictionDrama').innerHTML=`<p>🤝 <b>Same-brain club:</b><br>${copiedMorocco.join(' and ')} both have Morocco 2-1. ${copiedFrance.join(', ')} are riding France 3-1.</p><p>🧨 <b>Big swing:</b><br>${biggestFrance.player} went loudest with ${scoreText(biggestFrance)}.</p><p>🧤 <b>Clean-sheet gang:</b><br>${fraPicks.filter(p=>p.away===0).map(p=>p.player).join(', ')} think Paraguay gets blanked by France.</p><p>🎲 <b>Chaos pick:</b><br>Roxy is alone on Morocco-Canada ending 1-1, with Morocco going through on penalties.</p><p>👀 <b>Tie-breaker danger:</b><br>Because several people share exact scores, one result could create a mini pile-up on points and make GD hits matter fast.</p>`;
+}
+
 function render(){
+ renderCurrentPredictions();
  const rows=calc(), leader=rows[0], avgAcc=rows.reduce((s,p)=>s+p.acc,0)/rows.length; const topPoints=Math.max(...rows.map(p=>p.points)); const pointsLeaders=rows.filter(p=>p.points===topPoints).map(p=>p.name).join(', '); const mostExcited=[...rows].sort((a,b)=>b.preds-a.preds||b.points-a.points||a.name.localeCompare(b.name))[0]; const efficiency=[...rows].filter(p=>p.preds>0).sort((a,b)=>b.acc-a.acc||b.points-a.points||a.name.localeCompare(b.name))[0]||rows[0]; const gdGuru=[...rows].sort((a,b)=>b.gdHits-a.gdHits||b.points-a.points||b.preds-a.preds||a.name.localeCompare(b.name))[0]; const totalGd=rows.reduce((s,p)=>s+p.gdHits,0), totalPreds=rows.reduce((s,p)=>s+p.preds,0); const actualCount=Object.keys(actuals).length;
  document.getElementById('kpis').innerHTML=`<div class="card"><div class="label">Current leader</div><div class="value">${leader.name}</div><div class="small">Points leaders: ${pointsLeaders}</div></div><div class="card"><div class="label">Players</div><div class="value">${rows.length}</div><div class="small">Eight friends in the league</div></div><div class="card"><div class="label">Games left</div><div class="value">${remainingGames}</div><div class="small">Manual nightly update</div></div><div class="card"><div class="label">Predictions logged</div><div class="value">${totalPreds}</div><div class="small">Most active: ${mostExcited.name}</div></div><div class="card"><div class="label">League accuracy</div><div class="value">${pct(avgAcc)}</div><div class="small">Goal-diff hits: ${totalGd}</div></div>`;
  document.getElementById('table').innerHTML=`<table><thead><tr><th>#</th><th>Player</th><th>Pts</th><th>GD</th><th>Preds</th><th>Accuracy</th><th class="hide-sm">Left</th><th class="hide-sm">Possible</th></tr></thead><tbody>${rows.map((p,i)=>`<tr class="${i===0?'rank1':''}"><td><span class="rankBadge">${medal(i)}</span></td><td><div class="player"><div class="avatar">${p.name[0]}</div><div><b>${p.name}</b><div class="small">${i===0?'🔥 current leader':p.points===topPoints?'tied on points':'chasing'}</div></div></div></td><td><span class="pill gold">${p.points}</span></td><td><span class="pill green">${p.gdHits}</span></td><td>${p.preds}</td><td><div>${pct(p.acc)}</div><div class="bar"><i style="width:${Math.min(100,p.acc)}%"></i></div></td><td class="hide-sm">${remainingGames}</td><td class="hide-sm"><span class="pill purple">${p.maxPredsPossible}</span></td></tr>`).join('')}</tbody></table>`;
