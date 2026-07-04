@@ -21,7 +21,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:12px 8px;border-bottom:1
 <nav class="tabs"><button class="tab active" data-tab="standings">Standings</button><button class="tab" data-tab="current">Current Predictions</button><button class="tab" data-tab="insights">Insights</button></nav>
 <main>
 <section id="standings" class="panel active two"><div class="card"><div class="label">League table</div><div id="table"></div></div><div class="card"><div class="label">Current leader after tie-breakers</div><div id="leader"></div></div></section>
-<section id="current" class="panel three"><div class="card" style="grid-column:1/-1"><div class="label">Today's current predictions</div><div id="todayOverview"></div></div><div class="card"><div class="label">Morocco vs Canada</div><div id="moroccoCanada"></div></div><div class="card"><div class="label">France vs Paraguay</div><div id="franceParaguay"></div></div><div class="card"><div class="label">Prediction drama</div><div id="predictionDrama"></div></div></section>
+<section id="current" class="panel three"><div class="card" style="grid-column:1/-1"><div class="label">Current predictions & results</div><div id="todayOverview"></div></div><div class="card"><div class="label">Morocco vs Canada</div><div id="moroccoCanada"></div></div><div class="card"><div class="label">France vs Paraguay</div><div id="franceParaguay"></div></div><div class="card"><div class="label">Prediction drama</div><div id="predictionDrama"></div></div></section>
 <section id="insights" class="panel three"><div class="card" style="grid-column:1/-1"><div class="label">Auto analyst</div><div id="autoAnalyst"></div></div><div class="card"><div class="label">Most likely to win</div><div id="odds"></div></div><div class="card"><div class="label">Watch out for</div><div id="watch"></div></div><div class="card"><div class="label">Fun awards</div><div id="awards"></div></div><div class="card"><div class="label">Standing insights</div><div id="standingInsights"></div></div><div class="card"><div class="label">Stat lab</div><div id="statlab"></div></div><div class="card"><div class="label">Analyst banter</div><div id="banter"></div></div></section>
 
 </main></div><div id="toast" class="toast"></div>
@@ -57,13 +57,14 @@ const TODAY_PREDICTIONS=[
 ];
 const TODAY_ACTUALS={
  'mor-can':{home:3,away:0,status:'Final',summary:'Morocco beat Canada 3-0'},
- 'fra-par':null
+ 'fra-par':{home:1,away:0,status:'Final',summary:'France beat Paraguay 1-0'}
 };
-const DEFAULT_GAMES_LEFT=15;
+const DEFAULT_GAMES_LEFT=14;
 
 // View-only/manual-update data.
 // manualPreds already includes today's submitted picks.
-// Morocco vs Canada is final: nobody hit exact score or GD, so manualPoints/manualGdHits did not change.
+// Morocco vs Canada and France vs Paraguay are final.
+// Exact-score points stay unchanged. GD hits are awarded only when predicted goal difference matches the actual goal difference.
 let remainingGames=DEFAULT_GAMES_LEFT;
 let players=JSON.parse(JSON.stringify(START));
 let predictions=[];
@@ -122,10 +123,10 @@ function renderCurrentPredictions(){
  const copiedFrance=picks.filter(p=>p.fixtureId==='fra-par'&&p.home===3&&p.away===1).map(p=>p.player);
  const franceClean=fraPicks.filter(p=>p.away===0).map(p=>p.player);
  const france41=fraPicks.filter(p=>p.home===4&&p.away===1).map(p=>p.player);
- document.getElementById('todayOverview').innerHTML=`<h2>${uniquePlayers.length} players, ${fixtures.length} matches, ${picks.length} predictions locked in</h2><p class="note"><b>Live status:</b> Morocco-Canada is final at 3-0 Morocco. Nobody landed the exact score and nobody got the +3 GD hit, so the Morocco game created pure pain and zero table movement. France-Paraguay is still open, and every submitted pick has France winning.</p><p><span class="pill gold">Morocco exact hits: ${moroccoExact.length}</span> <span class="pill green">Morocco GD hits: ${moroccoGd.length}</span> <span class="pill purple">Winner-only hits: ${moroccoWinnerRight.length}</span> <span class="pill blue">France win picks: ${franceWins}</span> <span class="pill gold">France goals predicted: ${franceGoals}</span></p>`;
+ document.getElementById('todayOverview').innerHTML=`<h2>${uniquePlayers.length} players, ${fixtures.length} matches, ${picks.length} predictions locked in</h2><p class="note"><b>Final status:</b> Morocco-Canada finished 3-0 Morocco and France-Paraguay finished 1-0 France. The France rule is now live: anyone with a +1 France goal-difference pick would get a GD hit. Nobody had France by exactly one, so the France match also produced no exact-score points and no new GD hits.</p><p><span class="pill gold">Morocco exact hits: ${moroccoExact.length}</span> <span class="pill green">Morocco GD hits: ${moroccoGd.length}</span> <span class="pill purple">Morocco winner-only: ${moroccoWinnerRight.length}</span> <span class="pill blue">France winner-only: ${franceWins}</span> <span class="pill gold">France exact hits: ${fraPicks.filter(p=>pickResult(p).label.includes('exact')).length}</span> <span class="pill green">France GD hits: ${fraPicks.filter(p=>pickResult(p).label==='GD hit').length}</span></p>`;
  document.getElementById('moroccoCanada').innerHTML=renderPredictionList('mor-can');
  document.getElementById('franceParaguay').innerHTML=renderPredictionList('fra-par');
- document.getElementById('predictionDrama').innerHTML=`<p>💀 <b>Morocco 3-0 aftermath:</b><br>Everyone except Roxy had the Morocco direction, but nobody had the scoreline or +3 goal difference. The table said “nice try” and handed out nothing.</p><p>🤝 <b>Same-brain club:</b><br>${copiedMorocco.join(', ')} all had Morocco 2-1 and got collectively cooked by the third goal. ${copiedFrance.join(', ')} are riding France 3-1.</p><p>🧨 <b>Big swing:</b><br>${biggestFrance.player} went loudest with ${scoreText(biggestFrance)}. A France blowout turns Lil Diki into the chaos merchant.</p><p>🧤 <b>Clean-sheet gang:</b><br>${franceClean.join(', ')} think Paraguay gets blanked by France.</p><p>👀 <b>Camy watch:</b><br>Camy joins late with Morocco 2-1 and France 4-1. The Morocco pick missed, but a 4-1 France result would make the debut instantly annoying for everyone else.</p><p>🔥 <b>4-1 corner:</b><br>${france41.join(', ')||'Nobody'} need France 4-1 specifically. That is the Camy-only lane right now.</p>`;
+ document.getElementById('predictionDrama').innerHTML=`<p>💀 <b>Morocco 3-0 aftermath:</b><br>Everyone except Roxy had the Morocco direction, but nobody had the scoreline or +3 goal difference. The table said “nice try” and handed out nothing.</p><p>🤝 <b>Same-brain club:</b><br>${copiedMorocco.join(', ')} all had Morocco 2-1 and got collectively cooked by the third goal. ${copiedFrance.join(', ')} are riding France 3-1.</p><p>🧨 <b>France 1-0 aftermath:</b><br>Every France picker got the winner direction right, but every single one overshot the margin. The closest possible GD lane was +1, and nobody parked there.</p><p>🧨 <b>Big swing:</b><br>${biggestFrance.player} went loudest with ${scoreText(biggestFrance)}. France chose the tiny-margin route instead, so the chaos merchant pick got humbled.</p><p>🧤 <b>Clean-sheet gang:</b><br>${franceClean.join(', ')} think Paraguay gets blanked by France.</p><p>👀 <b>Camy watch:</b><br>Camy joined late with Morocco 2-1 and France 4-1. Both winners were in the right neighborhood emotionally, but the scores were not invited to the party.</p><p>🔥 <b>4-1 corner:</b><br>${france41.join(', ')||'Nobody'} needed France 4-1 specifically. France winning 1-0 turned that lane into a dead end.</p>`;
 }
 
 function render(){
