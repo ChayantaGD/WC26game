@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>World Cup 26 Prediction League</title>
+<style>
+:root{--bg:#07111f;--card:#101c31;--card2:#13243f;--text:#f8fbff;--muted:#9fb0c8;--line:rgba(255,255,255,.12);--a:#49f0c5;--b:#ffd166;--r:#ff6b7a}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 15% 0,#163d6e 0,#07111f 44%,#030711 100%);color:var(--text)}
+.wrap{max-width:1050px;margin:auto;padding:16px 12px 70px}.hero{border:1px solid var(--line);border-radius:28px;padding:22px;background:linear-gradient(135deg,rgba(73,240,197,.16),rgba(255,209,102,.10)),rgba(255,255,255,.05);box-shadow:0 20px 60px #0008}.eyebrow{color:var(--a);font-weight:900;letter-spacing:.12em;text-transform:uppercase;font-size:12px}.hero h1{font-size:clamp(30px,8vw,64px);line-height:.9;margin:10px 0}.hero p{margin:0;color:#d7e3f7;line-height:1.45}.prize{display:inline-block;margin-top:14px;background:rgba(255,209,102,.13);border:1px solid rgba(255,209,102,.35);border-radius:999px;padding:9px 12px;color:#ffe6a8;font-weight:900}
+.grid{display:grid;gap:12px}.kpis{grid-template-columns:repeat(4,1fr);margin:14px 0}.card{background:rgba(16,28,49,.82);border:1px solid var(--line);border-radius:22px;padding:15px;backdrop-filter:blur(8px)}.label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:900}.value{font-size:30px;font-weight:1000;margin-top:5px}.small{color:var(--muted);font-size:13px;margin-top:4px}.two{grid-template-columns:1.45fr .85fr}.three{grid-template-columns:repeat(3,1fr)}
+.tabs{display:flex;gap:8px;position:sticky;top:0;padding:10px 0;background:linear-gradient(180deg,#07111f 70%,transparent);z-index:5;overflow:auto}.tab{white-space:nowrap;border:1px solid var(--line);background:rgba(255,255,255,.07);color:#e8f0ff;border-radius:999px;padding:10px 13px;font-weight:900;cursor:pointer}.tab.active{background:var(--a);color:#06111d;border-color:transparent}.panel{display:none}.panel.active{display:grid}
+table{width:100%;border-collapse:collapse}th,td{padding:12px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:14px}th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.player{display:flex;gap:9px;align-items:center}.avatar{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(73,240,197,.35),rgba(255,209,102,.25));font-weight:1000}.pill{display:inline-block;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:900;background:rgba(255,255,255,.08)}.gold{background:rgba(255,209,102,.18);color:#ffe6a8}.green{background:rgba(73,240,197,.15);color:#b7fff0}.red{background:rgba(255,107,122,.13);color:#ffc7ce}.bar{height:8px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--a),var(--b))}.leader{font-size:42px;font-weight:1000;margin:8px 0}.rank1 td{background:rgba(255,209,102,.05)}
+.controls{display:grid;gap:10px}.row{display:grid;grid-template-columns:1.2fr .8fr .8fr .9fr;gap:8px;align-items:center}.row input{width:100%;background:#081326;color:var(--text);border:1px solid var(--line);border-radius:13px;padding:11px;font:inherit}button{border:0;border-radius:13px;background:var(--a);color:#06111d;font-weight:1000;padding:11px 13px;cursor:pointer}.secondary{background:rgba(255,255,255,.08);border:1px solid var(--line);color:#fff}.note{color:#c3d0e5;font-size:13px;line-height:1.5}.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);padding:10px 14px;border-radius:999px;background:#111c31;border:1px solid var(--line);display:none}
+@media(max-width:820px){.kpis,.two,.three,.row{grid-template-columns:1fr}.card{border-radius:18px}th,td{padding:10px 6px;font-size:13px}.hide-sm{display:none}.value{font-size:25px}.wrap{padding-inline:10px}.panel.active{display:grid}}
+</style>
+</head>
+<body><div class="wrap">
+<section class="hero"><div class="eyebrow">Hosted by Me • World Cup 26</div><h1>Prediction League Dashboard</h1><p>Six friends. Exact-score predictions. Most points at the end wins a custom World Cup 26 jersey with name and number on the back.</p><div class="prize">🏆 Prize: World Cup 26 jersey of choice</div></section>
+<section id="kpis" class="grid kpis"></section>
+<nav class="tabs"><button class="tab active" data-tab="standings">Standings</button><button class="tab" data-tab="insights">Insights</button><button class="tab" data-tab="update">Update</button></nav>
+<main>
+<section id="standings" class="panel active two"><div class="card"><div class="label">League table</div><div id="table"></div></div><div class="card"><div class="label">Current leader after tie-breakers</div><div id="leader"></div></div></section>
+<section id="insights" class="panel three"><div class="card"><div class="label">Most likely to win</div><div id="odds"></div></div><div class="card"><div class="label">Watch out for</div><div id="watch"></div></div><div class="card"><div class="label">Fun awards</div><div id="awards"></div></div><div class="card"><div class="label">Tie-break logic</div><div id="tiebreaks"></div></div><div class="card"><div class="label">Momentum</div><div id="momentum"></div></div><div class="card"><div class="label">Form guide</div><div id="form"></div></div></section>
+<section id="update" class="panel two"><div class="card"><div class="label">Manual update</div><p class="note">Only change these numbers for each player: <b>Points</b>, <b>Predictions made</b>, and <b>same goal-difference hits</b>. All other stats update automatically.</p><div id="controls" class="controls"></div><br><button onclick="saveFromInputs()">Save changes</button> <button class="secondary" onclick="resetData()">Reset to current scores</button> <button class="secondary" onclick="downloadPage()">Download HTML</button></div><div class="card"><div class="label">Scoring note</div><p class="note">Right now, 1 point = 1 correct exact score. Accuracy is calculated as <b>points ÷ predictions made</b>. Same goal-difference hits are manual bonus stats for close guesses, like predicting 2-1 when the real score was 1-0. Ranking order is: points first, then accuracy percentage, then goal-difference hits, then fewer predictions.</p><p class="note">Host is not included as a player.</p></div></section>
+
+</main></div><div id="toast" class="toast"></div>
+<script>
+const START=[
+ {id:'kaky',name:'Big Kaky',preds:6,points:1,gdHits:0},
+ {id:'party',name:'Party Animal',preds:6,points:0,gdHits:2},
+ {id:'porky',name:'Porky Broman',preds:6,points:1,gdHits:0},
+ {id:'roxy',name:'Roxy',preds:6,points:1,gdHits:1},
+ {id:'diki',name:'Diki',preds:3,points:0,gdHits:0},
+ {id:'ghos',name:'Ghos',preds:3,points:0,gdHits:0}
+];
+const STORAGE_KEY='wc26_simple_players_v4';
+let players=JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(START)).map(p=>({...p,gdHits:p.gdHits||0}));
+const totalGames=64;
+function calc(){
+ const maxPreds=Math.max(...players.map(p=>p.preds),1);
+ return players.map(p=>{
+   let acc=p.preds?100*p.points/p.preds:0;
+   let gdRate=p.preds?100*(p.gdHits||0)/p.preds:0;
+   let gamesLeft=Math.max(0,totalGames-p.preds);
+   let pace=p.preds? p.points/p.preds:0;
+   let projected=p.points+(pace*gamesLeft);
+   let odds=(p.points*4)+(acc/8)+((p.gdHits||0)*0.8)+(p.preds/maxPreds);
+   return {...p,gdHits:p.gdHits||0,acc,gdRate,gamesLeft,projected,odds};
+ })
+ .sort((a,b)=>b.points-a.points||b.acc-a.acc||b.gdHits-a.gdHits||a.preds-b.preds||a.name.localeCompare(b.name));
+}
+function pct(n){return `${n.toFixed(1)}%`}
+function render(){
+ const rows=calc(), leader=rows[0], avgAcc=rows.reduce((s,p)=>s+p.acc,0)/rows.length;
+ const topPoints=Math.max(...rows.map(p=>p.points));
+ const leaders=rows.filter(p=>p.points===topPoints);
+ const leaderNames=leaders.map(p=>p.name).join(', ');
+ const mostExcited=[...rows].sort((a,b)=>b.preds-a.preds||b.points-a.points)[0];
+ const efficiency=[...rows].sort((a,b)=>b.acc-a.acc||a.preds-b.preds)[0];
+ const gdGuru=[...rows].sort((a,b)=>b.gdHits-a.gdHits||b.acc-a.acc)[0];
+ const totalGd=rows.reduce((s,p)=>s+p.gdHits,0);
+ document.getElementById('kpis').innerHTML=`<div class="card"><div class="label">Current leaders</div><div class="value">${leader.name}</div><div class="small">By points: ${leaderNames}</div></div><div class="card"><div class="label">Players</div><div class="value">${rows.length}</div><div class="small">Host not playing</div></div><div class="card"><div class="label">Predictions logged</div><div class="value">${rows.reduce((s,p)=>s+p.preds,0)}</div><div class="small">Most excited: ${mostExcited.name}</div></div><div class="card"><div class="label">League accuracy</div><div class="value">${pct(avgAcc)}</div><div class="small">Goal-diff hits: ${totalGd}</div></div>`;
+ document.getElementById('table').innerHTML=`<table><thead><tr><th>#</th><th>Player</th><th>Pts</th><th>Preds</th><th>Accuracy</th><th>GD hits</th><th class="hide-sm">Projected</th></tr></thead><tbody>${rows.map((p,i)=>`<tr class="${p.points===topPoints?'rank1':''}"><td>${i+1}</td><td><div class="player"><div class="avatar">${p.name[0]}</div><div><b>${p.name}</b><div class="small">${p.points===topPoints?'🔥 current leader':'chasing'}</div></div></div></td><td><span class="pill gold">${p.points}</span></td><td>${p.preds}</td><td><div>${pct(p.acc)}</div><div class="bar"><i style="width:${Math.min(100,p.acc)}%"></i></div></td><td><span class="pill green">${p.gdHits}</span></td><td class="hide-sm">${p.projected.toFixed(1)}</td></tr>`).join('')}</tbody></table>`;
+ document.getElementById('leader').innerHTML=`<div class="leader">${leader.name}</div><p class="note"><b>${leader.name}</b> is the current leader after tie-breakers. Points leaders: <b>${leaderNames}</b>. Ranking uses points → accuracy percentage → GD hits → fewer predictions.</p><p><span class="pill green">Best accuracy: ${efficiency.name} ${pct(efficiency.acc)}</span></p>`;
+ const oddsTotal=rows.reduce((s,p)=>s+p.odds,0)||1;
+ document.getElementById('odds').innerHTML=rows.map(p=>`<p><b>${p.name}</b> <span class="pill green">${pct(100*p.odds/oddsTotal)}</span></p><div class="bar"><i style="width:${100*p.odds/oddsTotal}%"></i></div>`).join('');
+ let watch=rows.filter(p=>p.points<topPoints || p.preds<Math.max(...rows.map(x=>x.preds))).sort((a,b)=>b.acc-a.acc||b.gdHits-a.gdHits||a.preds-b.preds)[0]||leader;
+ document.getElementById('watch').innerHTML=`<h2>${watch.name}</h2><p class="note">Watch out for ${watch.name}: ${watch.points} point${watch.points==1?'':'s'}, ${watch.preds} predictions, ${pct(watch.acc)} accuracy, ${watch.gdHits} goal-diff hit${watch.gdHits==1?'':'s'}. ${watch.preds<6?'Fewer predictions means they can jump quickly with one exact score.':'They are already in the main pack.'}</p>`;
+ const underdog=[...rows].reverse().find(p=>p.preds<Math.max(...rows.map(x=>x.preds)))||rows[rows.length-1];
+ const pressure=rows.filter(p=>p.points===topPoints).length>1?'The top is tight — one exact score can flip the league.':'The leader has separation, but a single exact score can change everything.';
+ document.getElementById('awards').innerHTML=`<p>🎮 <b>Most excited to play:</b><br>${mostExcited.name} with ${mostExcited.preds} predictions.</p><p>🎯 <b>Efficiency king:</b><br>${efficiency.name} at ${pct(efficiency.acc)} accuracy.</p><p>🧠 <b>Goal-difference guru:</b><br>${gdGuru.gdHits?gdGuru.name+' with '+gdGuru.gdHits+' hits':'No goal-diff hits logged yet.'}</p><p>🐺 <b>Sleeping giant:</b><br>${underdog.name} still has room to climb.</p><p>🌶️ <b>Drama level:</b><br>${pressure}</p>`;
+ document.getElementById('tiebreaks').innerHTML=`<p class="note"><b>Ranking rule:</b><br>1. Most points<br>2. Best accuracy percentage<br>3. Most same goal-difference hits<br>4. Fewer predictions made<br>5. Alphabetical</p>`;
+ document.getElementById('momentum').innerHTML=rows.map(p=>`<p><b>${p.name}</b><br><span class="small">${p.points>0?'✅ on the board':'⏳ hunting first point'} • ${p.gdHits>0?'🧠 close-score threat':'needs GD hits logged'} • ${p.preds>=mostExcited.preds?'🎮 very active':'room to submit more'}</span></p>`).join('');
+ document.getElementById('form').innerHTML=rows.map(p=>`<p><b>${p.name}</b><br><span class="small">${p.points}/${p.preds} exact scores • ${p.gdHits} same goal-difference hits • projected ${p.projected.toFixed(1)} pts if pace holds.</span></p>`).join('');
+ renderControls();
+}
+function renderControls(){document.getElementById('controls').innerHTML=players.map(p=>`<div class="row"><b>${p.name}</b><input type="number" min="0" id="pts_${p.id}" value="${p.points}" placeholder="Points"><input type="number" min="0" id="pred_${p.id}" value="${p.preds}" placeholder="Predictions"><input type="number" min="0" id="gd_${p.id}" value="${p.gdHits||0}" placeholder="GD hits"></div>`).join('')}
+function saveFromInputs(){players=players.map(p=>({...p,points:+document.getElementById('pts_'+p.id).value||0,preds:+document.getElementById('pred_'+p.id).value||0,gdHits:+document.getElementById('gd_'+p.id).value||0}));localStorage.setItem(STORAGE_KEY,JSON.stringify(players));toast('Saved. Stats updated.');render()}
+function resetData(){players=JSON.parse(JSON.stringify(START));localStorage.setItem(STORAGE_KEY,JSON.stringify(players));toast('Reset done.');render()}
+function downloadPage(){const blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='index.html';a.click();URL.revokeObjectURL(a.href)}
+function toast(t){let el=document.getElementById('toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',2200)}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active')});
+render();
+</script>
+</body></html>
