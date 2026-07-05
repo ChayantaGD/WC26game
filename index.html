@@ -27,14 +27,14 @@ table{width:100%;border-collapse:collapse}th,td{padding:12px 8px;border-bottom:1
 </main></div><div id="toast" class="toast"></div>
 <script>
 const START=[
- {id:'kaky',name:'Big Kaky',manualPreds:8,manualPoints:1,manualGdHits:0},
- {id:'party',name:'Party Animal',manualPreds:8,manualPoints:0,manualGdHits:2},
- {id:'porky',name:'Porky Broman',manualPreds:8,manualPoints:1,manualGdHits:0},
- {id:'roxy',name:'Roxy',manualPreds:8,manualPoints:1,manualGdHits:1},
- {id:'diki',name:'Lil Diki',manualPreds:5,manualPoints:0,manualGdHits:0},
- {id:'ghos',name:'Big Ghos',manualPreds:5,manualPoints:0,manualGdHits:0},
- {id:'risky',name:'Risky',manualPreds:2,manualPoints:0,manualGdHits:0},
- {id:'camy',name:'Camy',manualPreds:2,manualPoints:0,manualGdHits:0},
+ {id:'kaky',name:'Big Kaky',manualPreds:10,manualPoints:1,manualGdHits:0},
+ {id:'party',name:'Party Animal',manualPreds:10,manualPoints:0,manualGdHits:2},
+ {id:'porky',name:'Porky Broman',manualPreds:10,manualPoints:1,manualGdHits:0},
+ {id:'roxy',name:'Roxy',manualPreds:10,manualPoints:1,manualGdHits:1},
+ {id:'diki',name:'Lil Diki',manualPreds:7,manualPoints:0,manualGdHits:0},
+ {id:'ghos',name:'Big Ghos',manualPreds:7,manualPoints:0,manualGdHits:0},
+ {id:'risky',name:'Risky',manualPreds:4,manualPoints:0,manualGdHits:0},
+ {id:'camy',name:'Camy',manualPreds:4,manualPoints:0,manualGdHits:0},
  {id:'debz',name:'Big Debz',manualPreds:0,manualPoints:0,manualGdHits:0}
 ];
 
@@ -70,8 +70,26 @@ const CURRENT_MATCHDAY={
  date:'July 5, 2026',
  title:'Round of 16: Brazil/Norway + Mexico/England',
  fixtures:[
-  {id:'bra-nor',fixture:'Brazil vs Norway',homeTeam:'Brazil',awayTeam:'Norway',kickoff:'4:00 PM ET',venue:'New York New Jersey Stadium',stage:'Round of 16',scoreErrorEligible:true,predictions:[]},
-  {id:'mex-eng',fixture:'Mexico vs England',homeTeam:'Mexico',awayTeam:'England',kickoff:'8:00 PM ET',venue:'Estadio Azteca, Mexico City',stage:'Round of 16',scoreErrorEligible:true,predictions:[]}
+  {id:'bra-nor',fixture:'Brazil vs Norway',homeTeam:'Brazil',awayTeam:'Norway',kickoff:'4:00 PM ET',venue:'New York New Jersey Stadium',stage:'Round of 16',scoreErrorEligible:true,predictions:[
+   {playerId:'party',player:'Party Animal',home:2,away:3,note:'Norway win'},
+   {playerId:'roxy',player:'Roxy',home:3,away:3,note:'Draw; Brazil through on penalties'},
+   {playerId:'risky',player:'Risky',home:2,away:1,note:'Brazil win'},
+   {playerId:'kaky',player:'Big Kaky',home:2,away:2,note:'Draw; Brazil through on penalties'},
+   {playerId:'porky',player:'Porky Broman',home:3,away:1,note:'Brazil win'},
+   {playerId:'camy',player:'Camy',home:2,away:1,note:'Brazil win'},
+   {playerId:'diki',player:'Lil Diki',home:1,away:2,note:'Norway win'},
+   {playerId:'ghos',player:'Big Ghos',home:3,away:1,note:'Brazil win'}
+  ]},
+  {id:'mex-eng',fixture:'Mexico vs England',homeTeam:'Mexico',awayTeam:'England',kickoff:'8:00 PM ET',venue:'Estadio Azteca, Mexico City',stage:'Round of 16',scoreErrorEligible:true,predictions:[
+   {playerId:'party',player:'Party Animal',home:1,away:0,note:'Mexico win'},
+   {playerId:'roxy',player:'Roxy',home:1,away:2,note:'England win'},
+   {playerId:'risky',player:'Risky',home:2,away:1,note:'Mexico win'},
+   {playerId:'kaky',player:'Big Kaky',home:1,away:1,note:'Draw; Mexico through on penalties'},
+   {playerId:'porky',player:'Porky Broman',home:3,away:2,note:'Mexico win'},
+   {playerId:'camy',player:'Camy',home:3,away:2,note:'Mexico win'},
+   {playerId:'diki',player:'Lil Diki',home:1,away:3,note:'England win'},
+   {playerId:'ghos',player:'Big Ghos',home:2,away:1,note:'Mexico win'}
+  ]}
  ]
 };
 
@@ -170,14 +188,36 @@ function renderFixtureArchive(f){
 }
 function renderCurrentPredictions(){
  const f=CURRENT_MATCHDAY.fixtures;
- document.getElementById('currentOverview').innerHTML=`<h2>${CURRENT_MATCHDAY.date} — ${CURRENT_MATCHDAY.title}</h2><p class="note">No predictions are logged for this matchday yet. <b>Score Error starts from this matchday onward</b>, so Brazil vs Norway and Mexico vs England will be the first games where Score Error can affect tie-breakers.</p><p><span class="pill blue">${f.length} games scheduled</span> <span class="pill purple">0 predictions locked</span> <span class="pill green">Ready for picks</span></p>`;
+ const totalCurrent=f.reduce((s,x)=>s+x.predictions.length,0);
+ const activePlayers=[...new Set(f.flatMap(x=>x.predictions.map(p=>p.player)))];
+ document.getElementById('currentOverview').innerHTML=`<h2>${CURRENT_MATCHDAY.date} — ${CURRENT_MATCHDAY.title}</h2><p class="note"><b>Predictions are locked for today's two games.</b> These are the first games where <b>Score Error</b> will count once final scores are added. Until the actual results come in, exact points, GD hits, correct winners, and score error are all pending for this matchday.</p><p><span class="pill blue">${f.length} games scheduled</span> <span class="pill purple">${totalCurrent} predictions locked</span> <span class="pill green">${activePlayers.length} players submitted</span> <span class="pill gold">Score Error active from this matchday</span></p>`;
  document.getElementById('currentGame1').innerHTML=renderUpcomingFixture(f[0]);
  document.getElementById('currentGame2').innerHTML=renderUpcomingFixture(f[1]);
- document.getElementById('currentDrama').innerHTML=`<p>📌 <b>Cleaner structure now:</b><br>Completed games live in <b>Past Predictions</b>. Upcoming games live here. That way this page will not get insane once the tournament piles up.</p><p>📝 <b>Tonight's picks needed:</b><br>Brazil vs Norway and Mexico vs England are both empty right now.</p><p>📏 <b>New rule from July 5 onward:</b><br>Score Error will be counted for these matches and every match after. July 4 predictions stay under the old rules because the rule was not announced before those picks were made.</p>`;
+ document.getElementById('currentDrama').innerHTML=renderCurrentDrama(f);
+}
+function pickSideLabel(p){
+ const side=predictionWinnerSide(p);
+ if(side==='home') return `${escapeHtml(p.homeTeam)} win`;
+ if(side==='away') return `${escapeHtml(p.awayTeam)} win`;
+ return 'Draw / pens call';
 }
 function renderUpcomingFixture(f){
  const predCount=f.predictions.length;
- return `<div class="fixtureCard"><div class="matchTitle">${escapeHtml(f.fixture)}</div><div class="scoreBig">${escapeHtml(f.homeTeam)} vs ${escapeHtml(f.awayTeam)}</div><p><span class="pill blue">${f.stage}</span> <span class="pill gold">${f.kickoff}</span></p><p class="note"><b>Venue:</b> ${escapeHtml(f.venue)}</p><div class="mutedLine"><span class="pill ${predCount?'green':'red'}">${predCount} prediction${predCount===1?'':'s'} logged</span></div></div>`;
+ const groups={};
+ f.predictions.forEach(p=>{const side=predictionWinnerSide({...p,homeTeam:f.homeTeam,awayTeam:f.awayTeam}); groups[side]=(groups[side]||0)+1;});
+ const rows=f.predictions.map(p=>{
+  const fp={...p,homeTeam:f.homeTeam,awayTeam:f.awayTeam};
+  return `<tr><td><b>${escapeHtml(p.player)}</b></td><td>${escapeHtml(f.homeTeam)} ${p.home}-${p.away} ${escapeHtml(f.awayTeam)}<div class="small">${escapeHtml(p.note)}</div></td><td><span class="pill blue">${pickSideLabel(fp)}</span></td><td><span class="pill purple">Pending</span></td></tr>`
+ }).join('');
+ return `<div class="fixtureCard"><div class="matchTitle">${escapeHtml(f.fixture)}</div><div class="scoreBig">${escapeHtml(f.homeTeam)} vs ${escapeHtml(f.awayTeam)}</div><p><span class="pill blue">${f.stage}</span> <span class="pill gold">${f.kickoff}</span></p><p class="note"><b>Venue:</b> ${escapeHtml(f.venue)}</p><p><span class="pill green">${predCount} prediction${predCount===1?'':'s'} locked</span> <span class="pill purple">${escapeHtml(f.homeTeam)}: ${groups.home||0}</span> <span class="pill purple">${escapeHtml(f.awayTeam)}: ${groups.away||0}</span> <span class="pill blue">Pens/draw: ${groups.draw||0}</span></p><table><thead><tr><th>Player</th><th>Prediction</th><th>Call</th><th>Score Error</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function renderCurrentDrama(fixtures){
+ const [b,m]=fixtures;
+ const brazilPens=b.predictions.filter(p=>predictionWinnerSide({...p,homeTeam:b.homeTeam,awayTeam:b.awayTeam})==='draw').map(p=>p.player);
+ const norway=b.predictions.filter(p=>predictionWinnerSide({...p,homeTeam:b.homeTeam,awayTeam:b.awayTeam})==='away').map(p=>p.player);
+ const england=m.predictions.filter(p=>predictionWinnerSide({...p,homeTeam:m.homeTeam,awayTeam:m.awayTeam})==='away').map(p=>p.player);
+ const mexicoPens=m.predictions.filter(p=>predictionWinnerSide({...p,homeTeam:m.homeTeam,awayTeam:m.awayTeam})==='draw').map(p=>p.player);
+ return `<p>📏 <b>Score Error starts now:</b><br>Once the final scores are added, each player's score error will be calculated as <b>home-goal miss + away-goal miss</b>. Lower is better.</p><p>🇧🇷 <b>Brazil/Norway split:</b><br>Most people backed Brazil, but ${norway.length?norway.join(' and '):'nobody'} called Norway in normal time. ${brazilPens.length?brazilPens.join(' and ')+' sent Brazil through on pens.':'No Brazil penalty calls.'}</p><p>🇲🇽 <b>Mexico/England split:</b><br>Mexico is the crowd pick. ${england.length?england.join(' and ')+' backed England.':'Nobody backed England.'} ${mexicoPens.length?mexicoPens.join(' and ')+' has Mexico through on penalties.':'No Mexico penalty calls.'}</p><p>⏳ <b>Standings note:</b><br>Predictions made have been updated now, but exact-score points, GD hits, correct winner picked, and Score Error for July 5 will stay pending until final scores are entered.</p>`;
 }
 function renderPastPredictions(){
  const totalPicks=flatPastPicks().length;
@@ -196,7 +236,7 @@ function render(){
  const totalGd=rows.reduce((s,p)=>s+p.gdHits,0), totalPreds=rows.reduce((s,p)=>s+p.preds,0);
  document.getElementById('kpis').innerHTML=`<div class="card"><div class="label">Current leader</div><div class="value">${leader.name}</div><div class="small">Points leaders: ${pointsLeaders}</div></div><div class="card"><div class="label">Players</div><div class="value">${rows.length}</div><div class="small">Nine friends in the league</div></div><div class="card"><div class="label">Games left</div><div class="value">${remainingGames}</div><div class="small">Manual nightly update</div></div><div class="card"><div class="label">Predictions logged</div><div class="value">${totalPreds}</div><div class="small">Most active: ${mostExcited.name}</div></div><div class="card"><div class="label">League accuracy</div><div class="value">${pct(avgAcc)}</div><div class="small">Goal-diff hits: ${totalGd}</div></div>`;
  document.getElementById('table').innerHTML=`<table><thead><tr><th>Rank</th><th>Player</th><th>Exact-Score Points</th><th>Score Error<br><span class="small">starts Jul 5</span></th><th>GD Hits</th><th>Correct Winner Picked</th><th>Predictions Made</th><th>Hit Rate</th></tr></thead><tbody>${rows.map((p,i)=>`<tr class="${i===0?'rank1':''}"><td><span class="rankBadge">${medal(i)}</span></td><td><div class="player"><div class="avatar">${p.name[0]}</div><div><b>${p.name}</b><div class="small">${i===0?'🔥 current leader':p.points===topPoints?'tied on points':'chasing'}</div></div></div></td><td><span class="pill gold">${p.points}</span></td><td><span class="pill purple">${errorFmt(p)}</span></td><td><span class="pill green">${p.gdHits}</span></td><td><span class="pill blue">${p.winnerHits}</span></td><td>${p.preds}</td><td><div>${pct(p.acc)}</div><div class="bar"><i style="width:${Math.min(100,p.acc)}%"></i></div></td></tr>`).join('')}</tbody></table>`;
- document.getElementById('leader').innerHTML=`<div class="leader">${leader.name}</div><p class="note"><b>${leader.name}</b> leads because the table checks tie-breakers in this order:</p><p class="note"><b>Ranking order:</b><br>1) Exact-score points → 2) Score Error <span class="pill blue">starts July 5</span> → 3) GD hits → 4) Correct Winner Picked → 5) Predictions Made → 6) Alphabetical</p><p class="note"><b>Important fairness note:</b><br>Score Error is <b>not counted for the July 4 games</b> because that rule was added after everyone had already made those picks. Morocco vs Canada and France vs Paraguay stay under the old tie-break rules.</p><p class="note"><b>How Score Error will work from July 5 onward:</b><br>For each eligible completed match:<br><b>Score Error = difference in Team A goals + difference in Team B goals.</b><br><br><b>Example:</b> Actual score is <b>Brazil 2-1 Norway</b>.<br>• Picked Brazil <b>2-1</b>: off by 0 + 0 = <b>0 error</b><br>• Picked Brazil <b>3-1</b>: off by 1 + 0 = <b>1 error</b><br>• Picked Brazil <b>2-0</b>: off by 0 + 1 = <b>1 error</b><br>• Picked Brazil <b>4-0</b>: off by 2 + 1 = <b>3 error</b><br><br><b>Lower Score Error is better.</b> It rewards the player whose scoreline was closest, even when nobody gets the exact score.</p><p class="note"><b>Why rankings changed back:</b><br>Since July 4 Score Error is not counted, the current table goes back to the old tie-breakers until July 5 results are in. So if players are tied on exact-score points, the site now skips Score Error for now and looks at <b>GD hits</b>, then <b>Correct Winner Picked</b>, then <b>Predictions Made</b>.</p><p><span class="pill gold">${leader.points} exact-score point${leader.points==1?'':'s'}</span> <span class="pill purple">${errorFmt(leader)} score error from eligible games</span> <span class="pill green">${leader.gdHits} GD hit${leader.gdHits==1?'':'s'}</span> <span class="pill blue">${leader.winnerHits} correct winner pick${leader.winnerHits==1?'':'s'}</span> <span class="pill purple">${leader.preds} predictions</span></p>`;
+ document.getElementById('leader').innerHTML=`<div class="leader">${leader.name}</div><p class="note"><b>${leader.name}</b> leads because the table checks tie-breakers in this order:</p><p class="note"><b>Ranking order:</b><br>1) Exact-score points → 2) Score Error <span class="pill blue">starts July 5</span> → 3) GD hits → 4) Correct Winner Picked → 5) Predictions Made → 6) Alphabetical</p><p class="note"><b>Important fairness note:</b><br>Score Error is <b>not counted for the July 4 games</b> because that rule was added after everyone had already made those picks. Morocco vs Canada and France vs Paraguay stay under the old tie-break rules.</p><p class="note"><b>How Score Error will work from July 5 onward:</b><br>For each eligible completed match:<br><b>Score Error = difference in Team A goals + difference in Team B goals.</b><br><br><b>Example:</b> Actual score is <b>Brazil 2-1 Norway</b>.<br>• Picked Brazil <b>2-1</b>: off by 0 + 0 = <b>0 error</b><br>• Picked Brazil <b>3-1</b>: off by 1 + 0 = <b>1 error</b><br>• Picked Brazil <b>2-0</b>: off by 0 + 1 = <b>1 error</b><br>• Picked Brazil <b>4-0</b>: off by 2 + 1 = <b>3 error</b><br><br><b>Lower Score Error is better.</b> It rewards the player whose scoreline was closest, even when nobody gets the exact score.</p><p class="note"><b>Why rankings changed back:</b><br>Since July 4 Score Error is not counted and July 5 results are not final yet, the current table still uses the old completed-game tie-breakers after exact-score points. The July 5 picks are logged in predictions made, but their points, GD hits, correct winners, and Score Error stay pending until final scores are added.</p><p><span class="pill gold">${leader.points} exact-score point${leader.points==1?'':'s'}</span> <span class="pill purple">${errorFmt(leader)} score error from eligible games</span> <span class="pill green">${leader.gdHits} GD hit${leader.gdHits==1?'':'s'}</span> <span class="pill blue">${leader.winnerHits} correct winner pick${leader.winnerHits==1?'':'s'}</span> <span class="pill purple">${leader.preds} predictions</span></p>`;
  const oddsTotal=rows.reduce((s,p)=>s+p.odds,0)||1;
  document.getElementById('odds').innerHTML=rows.map(p=>`<div class="chartLine"><b>${p.name}</b><div class="bar"><i style="width:${100*p.odds/oddsTotal}%"></i></div><span class="pill green">${pct(100*p.odds/oddsTotal)}</span></div>`).join('');
  const watch=rows.filter(p=>p.name!==leader.name).sort((a,b)=>b.projected-a.projected||b.gdHits-a.gdHits||b.preds-a.preds||a.name.localeCompare(b.name))[0]||leader;
