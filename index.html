@@ -18,12 +18,12 @@ table{width:100%;border-collapse:collapse}th,td{padding:12px 8px;border-bottom:1
 <body><div class="wrap">
 <section class="hero"><div class="eyebrow">World Cup 26</div><h1>Prediction League Dashboard</h1><p>Nine friends. Exact-score predictions. Most points at the end wins a custom World Cup 26 jersey with name and number on the back.</p><div class="prize">🏆 Prize: World Cup 26 jersey of choice</div></section>
 <section id="kpis" class="grid kpis"></section>
-<nav class="tabs"><button class="tab active" data-tab="standings">Standings</button><button class="tab" data-tab="current">Current Predictions</button><button class="tab" data-tab="insights">Insights</button></nav>
+<nav class="tabs"><button class="tab active" data-tab="standings">Standings</button><button class="tab" data-tab="current">Current Predictions</button><button class="tab" data-tab="past">Past Predictions</button><button class="tab" data-tab="insights">Insights</button></nav>
 <main>
 <section id="standings" class="panel active two"><div class="card"><div class="label">League table</div><div id="table"></div></div><div class="card"><div class="label">Current leader after tie-breakers</div><div id="leader"></div></div></section>
-<section id="current" class="panel three"><div class="card" style="grid-column:1/-1"><div class="label">Current predictions & results</div><div id="todayOverview"></div></div><div class="card"><div class="label">Morocco vs Canada</div><div id="moroccoCanada"></div></div><div class="card"><div class="label">France vs Paraguay</div><div id="franceParaguay"></div></div><div class="card"><div class="label">Prediction drama</div><div id="predictionDrama"></div></div></section>
+<section id="current" class="panel three"><div class="card" style="grid-column:1/-1"><div class="label">Current predictions</div><div id="currentOverview"></div></div><div class="card"><div class="label">Brazil vs Norway</div><div id="currentGame1"></div></div><div class="card"><div class="label">Mexico vs England</div><div id="currentGame2"></div></div><div class="card"><div class="label">Prediction status</div><div id="currentDrama"></div></div></section>
+<section id="past" class="panel three"><div class="card" style="grid-column:1/-1"><div class="label">Past predictions archive</div><div id="pastOverview"></div></div><div class="card" style="grid-column:1/-1"><div class="label">Completed matchdays</div><div id="pastArchive"></div></div></section>
 <section id="insights" class="panel three"><div class="card" style="grid-column:1/-1"><div class="label">Auto analyst</div><div id="autoAnalyst"></div></div><div class="card"><div class="label">Most likely to win</div><div id="odds"></div></div><div class="card"><div class="label">Watch out for</div><div id="watch"></div></div><div class="card"><div class="label">Fun awards</div><div id="awards"></div></div><div class="card"><div class="label">Standing insights</div><div id="standingInsights"></div></div><div class="card"><div class="label">Stat lab</div><div id="statlab"></div></div><div class="card"><div class="label">Analyst banter</div><div id="banter"></div></div></section>
-
 </main></div><div id="toast" class="toast"></div>
 <script>
 const START=[
@@ -37,112 +37,193 @@ const START=[
  {id:'camy',name:'Camy',manualPreds:2,manualPoints:0,manualGdHits:0},
  {id:'debz',name:'Big Debz',manualPreds:0,manualPoints:0,manualGdHits:0}
 ];
-const TODAY_PREDICTIONS=[
- {fixtureId:'mor-can',fixture:'Morocco vs Canada',playerId:'kaky',player:'Big Kaky',homeTeam:'Morocco',awayTeam:'Canada',home:2,away:1,note:'Morocco win'},
- {fixtureId:'fra-par',fixture:'France vs Paraguay',playerId:'kaky',player:'Big Kaky',homeTeam:'France',awayTeam:'Paraguay',home:2,away:0,note:'France win'},
- {fixtureId:'mor-can',fixture:'Morocco vs Canada',playerId:'porky',player:'Porky Broman',homeTeam:'Morocco',awayTeam:'Canada',home:2,away:0,note:'Morocco win'},
- {fixtureId:'fra-par',fixture:'France vs Paraguay',playerId:'porky',player:'Porky Broman',homeTeam:'France',awayTeam:'Paraguay',home:3,away:1,note:'France win'},
- {fixtureId:'mor-can',fixture:'Morocco vs Canada',playerId:'diki',player:'Lil Diki',homeTeam:'Morocco',awayTeam:'Canada',home:3,away:1,note:'Morocco win'},
- {fixtureId:'fra-par',fixture:'France vs Paraguay',playerId:'diki',player:'Lil Diki',homeTeam:'France',awayTeam:'Paraguay',home:6,away:1,note:'France win'},
- {fixtureId:'mor-can',fixture:'Morocco vs Canada',playerId:'party',player:'Party Animal',homeTeam:'Morocco',awayTeam:'Canada',home:1,away:0,note:'Morocco win'},
- {fixtureId:'fra-par',fixture:'France vs Paraguay',playerId:'party',player:'Party Animal',homeTeam:'France',awayTeam:'Paraguay',home:4,away:0,note:'France win'},
- {fixtureId:'mor-can',fixture:'Morocco vs Canada',playerId:'ghos',player:'Big Ghos',homeTeam:'Morocco',awayTeam:'Canada',home:2,away:1,note:'Morocco win'},
- {fixtureId:'fra-par',fixture:'France vs Paraguay',playerId:'ghos',player:'Big Ghos',homeTeam:'France',awayTeam:'Paraguay',home:3,away:1,note:'France win'},
- {fixtureId:'mor-can',fixture:'Morocco vs Canada',playerId:'risky',player:'Risky',homeTeam:'Morocco',awayTeam:'Canada',home:2,away:0,note:'Morocco win'},
- {fixtureId:'fra-par',fixture:'France vs Paraguay',playerId:'risky',player:'Risky',homeTeam:'France',awayTeam:'Paraguay',home:4,away:0,note:'France win'},
- {fixtureId:'mor-can',fixture:'Morocco vs Canada',playerId:'roxy',player:'Roxy',homeTeam:'Morocco',awayTeam:'Canada',home:1,away:1,note:'Draw; Morocco through on penalties'},
- {fixtureId:'fra-par',fixture:'France vs Paraguay',playerId:'roxy',player:'Roxy',homeTeam:'France',awayTeam:'Paraguay',home:3,away:1,note:'France win'},
- {fixtureId:'mor-can',fixture:'Morocco vs Canada',playerId:'camy',player:'Camy',homeTeam:'Morocco',awayTeam:'Canada',home:2,away:1,note:'Morocco win'},
- {fixtureId:'fra-par',fixture:'France vs Paraguay',playerId:'camy',player:'Camy',homeTeam:'France',awayTeam:'Paraguay',home:4,away:1,note:'France win'}
-];
-const TODAY_ACTUALS={
- 'mor-can':{home:3,away:0,status:'Final',summary:'Morocco beat Canada 3-0'},
- 'fra-par':{home:1,away:0,status:'Final',summary:'France beat Paraguay 1-0'}
-};
-const DEFAULT_GAMES_LEFT=14;
 
-// View-only/manual-update data.
-// manualPreds already includes today's submitted picks.
-// Morocco vs Canada and France vs Paraguay are final.
-// Exact-score points stay unchanged. GD hits are awarded only when predicted goal difference matches the actual goal difference.
+const PAST_MATCHDAYS=[{
+ date:'July 4, 2026',
+ title:'Round of 16: Morocco/Canada + France/Paraguay',
+ summary:'Morocco beat Canada 3-0. France beat Paraguay 1-0. These games use the original rules only: exact-score points, GD hits, correct winner picked, predictions made, then alphabetical. Score Error is not counted here because the rule starts from July 5 onward.',
+ fixtures:[
+  {id:'mor-can',fixture:'Morocco vs Canada',homeTeam:'Morocco',awayTeam:'Canada',scoreErrorEligible:false,actual:{home:3,away:0,status:'Final',summary:'Morocco beat Canada 3-0'},predictions:[
+   {playerId:'kaky',player:'Big Kaky',home:2,away:1,note:'Morocco win'},
+   {playerId:'porky',player:'Porky Broman',home:2,away:0,note:'Morocco win'},
+   {playerId:'diki',player:'Lil Diki',home:3,away:1,note:'Morocco win'},
+   {playerId:'party',player:'Party Animal',home:1,away:0,note:'Morocco win'},
+   {playerId:'ghos',player:'Big Ghos',home:2,away:1,note:'Morocco win'},
+   {playerId:'risky',player:'Risky',home:2,away:0,note:'Morocco win'},
+   {playerId:'roxy',player:'Roxy',home:1,away:1,note:'Draw; Morocco through on penalties'},
+   {playerId:'camy',player:'Camy',home:2,away:1,note:'Morocco win'}
+  ]},
+  {id:'fra-par',fixture:'France vs Paraguay',homeTeam:'France',awayTeam:'Paraguay',scoreErrorEligible:false,actual:{home:1,away:0,status:'Final',summary:'France beat Paraguay 1-0'},predictions:[
+   {playerId:'kaky',player:'Big Kaky',home:2,away:0,note:'France win'},
+   {playerId:'porky',player:'Porky Broman',home:3,away:1,note:'France win'},
+   {playerId:'diki',player:'Lil Diki',home:6,away:1,note:'France win'},
+   {playerId:'party',player:'Party Animal',home:4,away:0,note:'France win'},
+   {playerId:'ghos',player:'Big Ghos',home:3,away:1,note:'France win'},
+   {playerId:'risky',player:'Risky',home:4,away:0,note:'France win'},
+   {playerId:'roxy',player:'Roxy',home:3,away:1,note:'France win'},
+   {playerId:'camy',player:'Camy',home:4,away:1,note:'France win'}
+  ]}
+ ]
+}];
+
+const CURRENT_MATCHDAY={
+ date:'July 5, 2026',
+ title:'Round of 16: Brazil/Norway + Mexico/England',
+ fixtures:[
+  {id:'bra-nor',fixture:'Brazil vs Norway',homeTeam:'Brazil',awayTeam:'Norway',kickoff:'4:00 PM ET',venue:'New York New Jersey Stadium',stage:'Round of 16',scoreErrorEligible:true,predictions:[]},
+  {id:'mex-eng',fixture:'Mexico vs England',homeTeam:'Mexico',awayTeam:'England',kickoff:'8:00 PM ET',venue:'Estadio Azteca, Mexico City',stage:'Round of 16',scoreErrorEligible:true,predictions:[]}
+ ]
+};
+
+const DEFAULT_GAMES_LEFT=14;
 let remainingGames=DEFAULT_GAMES_LEFT;
 let players=JSON.parse(JSON.stringify(START));
-let predictions=[];
-let actuals={};
 
-function normalizePlayers(list){return (list||START).map(p=>({manualPreds:p.manualPreds??p.preds??0,manualPoints:p.manualPoints??p.points??0,manualGdHits:p.manualGdHits??p.gdHits??0,id:p.id,name:p.name}))}
-
-function computedFor(pid){
- const picks=predictions.filter(x=>x.playerId===pid);
- let autoPreds=picks.length, autoPoints=0, autoGdHits=0;
- picks.forEach(p=>{const a=actuals[p.fixtureId]; if(!a) return; if(+p.home===+a.home && +p.away===+a.away) autoPoints++; if((+p.home-+p.away)===(+a.home-+a.away)) autoGdHits++;});
- return {autoPreds,autoPoints,autoGdHits};
+function normalizePlayers(list){return (list||START).map(p=>({manualPreds:p.manualPreds??p.preds??0,manualPoints:p.manualPoints??p.points??0,manualGdHits:p.manualGdHits??p.gdHits??0,manualWinnerHits:p.manualWinnerHits??p.winnerHits??0,manualScoreError:p.manualScoreError??p.scoreError??0,id:p.id,name:p.name}))}
+function pct(n){return `${n.toFixed(1)}%`}
+function medal(i){return i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)}
+function escapeHtml(v){return String(v).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+function errorFmt(p){return p.errorPerScored===null?'—':p.errorPerScored.toFixed(1)}
+function flatPastPicks(){
+ return PAST_MATCHDAYS.flatMap(day=>day.fixtures.flatMap(f=>f.predictions.map(p=>({...p,fixtureId:f.id,fixture:f.fixture,homeTeam:f.homeTeam,awayTeam:f.awayTeam,actual:f.actual,scoreErrorEligible:f.scoreErrorEligible!==false,date:day.date}))));
 }
-function calc(){
- const base=players.map(p=>{const c=computedFor(p.id); const preds=(+p.manualPreds||0)+c.autoPreds; const points=(+p.manualPoints||0)+c.autoPoints; const gdHits=(+p.manualGdHits||0)+c.autoGdHits; return {...p,...c,preds,points,gdHits};});
- const maxPreds=Math.max(...base.map(p=>p.preds),1);
- return base.map(p=>{let acc=p.preds?100*p.points/p.preds:0;let gdRate=p.preds?100*p.gdHits/p.preds:0;let pace=p.preds?p.points/p.preds:0;let projected=p.points+(pace*remainingGames);let maxPredsPossible=p.preds+remainingGames;let commitment=p.preds/maxPreds*100;let odds=projected+(p.points*4)+(p.gdHits*2)+(p.preds*.7);return {...p,acc,gdRate,pace,projected,maxPredsPossible,commitment,odds};}).sort((a,b)=>b.points-a.points||b.gdHits-a.gdHits||b.preds-a.preds||a.name.localeCompare(b.name));
+function predictionWinnerSide(p){
+ const diff=(+p.home)-(+p.away);
+ if(diff>0) return 'home';
+ if(diff<0) return 'away';
+ const n=(p.note||'').toLowerCase();
+ if(n.includes('through')||n.includes('pens')||n.includes('penalties')){
+  if(n.includes((p.homeTeam||'').toLowerCase())) return 'home';
+  if(n.includes((p.awayTeam||'').toLowerCase())) return 'away';
+ }
+ return 'draw';
 }
-function pct(n){return `${n.toFixed(1)}%`}function medal(i){return i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)}function escapeHtml(v){return String(v).replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]))}
-
-function scoreText(p){return `${escapeHtml(p.homeTeam)} ${p.home}-${p.away} ${escapeHtml(p.awayTeam)}`}
+function actualWinnerSide(a){const diff=(+a.home)-(+a.away); if(diff>0)return 'home'; if(diff<0)return 'away'; return 'draw'}
+function scoreError(p,a){return Math.abs((+p.home)-(+a.home))+Math.abs((+p.away)-(+a.away))}
 function pickResult(p){
- const a=TODAY_ACTUALS[p.fixtureId];
+ const a=p.actual;
  if(!a) return {label:'Pending',cls:'blue',detail:'Waiting on final score'};
  const pickDiff=+p.home-+p.away, actualDiff=+a.home-+a.away;
  const exact=(+p.home===+a.home && +p.away===+a.away);
  const gd=(pickDiff===actualDiff);
- const side=(Math.sign(pickDiff)===Math.sign(actualDiff));
+ const side=(predictionWinnerSide(p)===actualWinnerSide(a));
  if(exact) return {label:'+1 exact',cls:'gold',detail:'Perfect hit'};
  if(gd) return {label:'GD hit',cls:'green',detail:'Tie-breaker hit'};
- if(side) return {label:'Winner right',cls:'purple',detail:'Right team, wrong score/GD'};
+ if(side) return {label:'Winner right',cls:'purple',detail:'Correct winner/advancer picked'};
  return {label:'Miss',cls:'red',detail:'Wrong result direction'};
 }
-function renderPredictionList(fixtureId){
- const picks=TODAY_PREDICTIONS.filter(p=>p.fixtureId===fixtureId);
- const actual=TODAY_ACTUALS[fixtureId];
+function historyStatsFor(pid){
+ const picks=flatPastPicks().filter(p=>p.playerId===pid);
+ let winnerHits=0, scoredPicks=0, scoreErrorTotal=0;
+ picks.forEach(p=>{
+  if(!p.actual) return;
+  if(predictionWinnerSide(p)===actualWinnerSide(p.actual)) winnerHits++;
+  // Score Error starts from July 5, 2026 onward. Older archived games stay under the old rules.
+  if(p.scoreErrorEligible){scoredPicks++; scoreErrorTotal+=scoreError(p,p.actual);}
+ });
+ return {winnerHits,scoredPicks,scoreErrorTotal};
+}
+function calc(){
+ const base=players.map(p=>{
+  const h=historyStatsFor(p.id);
+  const preds=(+p.manualPreds||0);
+  const points=(+p.manualPoints||0);
+  const gdHits=(+p.manualGdHits||0);
+  const winnerHits=(+p.manualWinnerHits||0)+h.winnerHits;
+  const scoreErrorTotal=(+p.manualScoreError||0)+h.scoreErrorTotal;
+  const scoredPicks=h.scoredPicks;
+  return {...p,...h,preds,points,gdHits,winnerHits,scoreErrorTotal,scoredPicks};
+ });
+ const maxPreds=Math.max(...base.map(p=>p.preds),1);
+ return base.map(p=>{
+  let acc=p.preds?100*p.points/p.preds:0;
+  let gdRate=p.preds?100*p.gdHits/p.preds:0;
+  let winnerRate=p.preds?100*p.winnerHits/p.preds:0;
+  let errorPerScored=p.scoredPicks?p.scoreErrorTotal/p.scoredPicks:null;
+  let pace=p.preds?p.points/p.preds:0;
+  let projected=p.points+(pace*remainingGames);
+  let errorBoost=errorPerScored===null?0:Math.max(0,5-errorPerScored)*1.1;
+  let odds=projected+(p.points*4)+(p.gdHits*2)+(p.winnerHits*1.15)+errorBoost+(p.preds*.55);
+  return {...p,acc,gdRate,winnerRate,errorPerScored,pace,projected,commitment:p.preds/maxPreds*100,odds};
+ }).sort((a,b)=>
+  b.points-a.points ||
+  ((a.errorPerScored??999)-(b.errorPerScored??999)) ||
+  b.gdHits-a.gdHits ||
+  b.winnerHits-a.winnerHits ||
+  b.preds-a.preds ||
+  a.name.localeCompare(b.name)
+ );
+}
+function scoreText(p){return `${escapeHtml(p.homeTeam)} ${p.home}-${p.away} ${escapeHtml(p.awayTeam)}`}
+function renderFixtureArchive(f){
+ const picks=f.predictions.map(p=>({...p,fixtureId:f.id,fixture:f.fixture,homeTeam:f.homeTeam,awayTeam:f.awayTeam,actual:f.actual,scoreErrorEligible:f.scoreErrorEligible!==false}));
  const exactGroups={}; picks.forEach(p=>{const key=`${p.home}-${p.away}`; exactGroups[key]=(exactGroups[key]||[]).concat(p.player);});
  const popular=Object.entries(exactGroups).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0]))[0];
- const actualLine=actual?`<div><span class="pill gold">Final: ${picks[0].homeTeam} ${actual.home}-${actual.away} ${picks[0].awayTeam}</span></div>`:`<div><span class="pill blue">Pending final score</span></div>`;
- return `<div class="fixtureCard">${actualLine}${picks.map(p=>{const r=pickResult(p);return `<div class="mutedLine"><div class="matchTitle">${escapeHtml(p.player)}</div><div class="scoreBig">${scoreText(p)}</div><div class="small">${escapeHtml(p.note)}</div><p><span class="pill ${r.cls}">${r.label}</span> <span class="small">${r.detail}</span></p></div>`}).join('')}<div class="mutedLine"><span class="pill blue">Most popular exact score: ${popular[0]} (${popular[1].join(', ')})</span></div></div>`;
+ const scoreErrorHeader=f.scoreErrorEligible!==false?'Score Error<br><span class="small">lower is better</span>':'Score Error<br><span class="small">not counted yet</span>';
+ const scoreErrorNote=f.scoreErrorEligible!==false?'<span class="pill purple">Score Error active</span>':'<span class="pill red">Score Error not counted — rule starts July 5</span>';
+ const rows=picks.map(p=>{
+  const r=pickResult(p);
+  const err=f.scoreErrorEligible!==false?`<span class="pill purple">${scoreError(p,p.actual)}</span>`:`<span class="pill secondary">Not counted</span>`;
+  return `<tr><td><b>${escapeHtml(p.player)}</b></td><td>${scoreText(p)}<div class="small">${escapeHtml(p.note)}</div></td><td><span class="pill ${r.cls}">${r.label}</span></td><td>${err}</td></tr>`
+ }).join('');
+ return `<div class="mutedLine"><h3>${escapeHtml(f.fixture)}</h3><p><span class="pill gold">Final: ${escapeHtml(f.homeTeam)} ${f.actual.home}-${f.actual.away} ${escapeHtml(f.awayTeam)}</span> <span class="pill blue">Most popular: ${popular[0]} (${popular[1].join(', ')})</span> ${scoreErrorNote}</p><table><thead><tr><th>Player</th><th>Pick</th><th>Result</th><th>${scoreErrorHeader}</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 function renderCurrentPredictions(){
- const picks=TODAY_PREDICTIONS;
- const uniquePlayers=[...new Set(picks.map(p=>p.player))];
- const fixtures=[...new Set(picks.map(p=>p.fixture))];
- const morPicks=picks.filter(p=>p.fixtureId==='mor-can');
- const fraPicks=picks.filter(p=>p.fixtureId==='fra-par');
- const moroccoActual=TODAY_ACTUALS['mor-can'];
- const moroccoExact=morPicks.filter(p=>pickResult(p).label.includes('exact')).map(p=>p.player);
- const moroccoGd=morPicks.filter(p=>pickResult(p).label==='GD hit').map(p=>p.player);
- const moroccoWinnerRight=morPicks.filter(p=>pickResult(p).label==='Winner right').map(p=>p.player);
- const franceWins=fraPicks.filter(p=>p.home>p.away).length;
- const franceGoals=fraPicks.reduce((s,p)=>s+p.home,0);
- const biggestFrance=[...fraPicks].sort((a,b)=>(b.home-b.away)-(a.home-a.away)||b.home-a.home)[0];
- const copiedMorocco=picks.filter(p=>p.fixtureId==='mor-can'&&p.home===2&&p.away===1).map(p=>p.player);
- const copiedFrance=picks.filter(p=>p.fixtureId==='fra-par'&&p.home===3&&p.away===1).map(p=>p.player);
- const franceClean=fraPicks.filter(p=>p.away===0).map(p=>p.player);
- const france41=fraPicks.filter(p=>p.home===4&&p.away===1).map(p=>p.player);
- document.getElementById('todayOverview').innerHTML=`<h2>${uniquePlayers.length} players, ${fixtures.length} matches, ${picks.length} predictions locked in</h2><p class="note"><b>Final status:</b> Morocco-Canada finished 3-0 Morocco and France-Paraguay finished 1-0 France. The France rule is now live: anyone with a +1 France goal-difference pick would get a GD hit. Nobody had France by exactly one, so the France match also produced no exact-score points and no new GD hits.</p><p><span class="pill gold">Morocco exact hits: ${moroccoExact.length}</span> <span class="pill green">Morocco GD hits: ${moroccoGd.length}</span> <span class="pill purple">Morocco winner-only: ${moroccoWinnerRight.length}</span> <span class="pill blue">France winner-only: ${franceWins}</span> <span class="pill gold">France exact hits: ${fraPicks.filter(p=>pickResult(p).label.includes('exact')).length}</span> <span class="pill green">France GD hits: ${fraPicks.filter(p=>pickResult(p).label==='GD hit').length}</span></p>`;
- document.getElementById('moroccoCanada').innerHTML=renderPredictionList('mor-can');
- document.getElementById('franceParaguay').innerHTML=renderPredictionList('fra-par');
- document.getElementById('predictionDrama').innerHTML=`<p>💀 <b>Morocco 3-0 aftermath:</b><br>Everyone except Roxy had the Morocco direction, but nobody had the scoreline or +3 goal difference. The table said “nice try” and handed out nothing.</p><p>🤝 <b>Same-brain club:</b><br>${copiedMorocco.join(', ')} all had Morocco 2-1 and got collectively cooked by the third goal. ${copiedFrance.join(', ')} are riding France 3-1.</p><p>🧨 <b>France 1-0 aftermath:</b><br>Every France picker got the winner direction right, but every single one overshot the margin. The closest possible GD lane was +1, and nobody parked there.</p><p>🧨 <b>Big swing:</b><br>${biggestFrance.player} went loudest with ${scoreText(biggestFrance)}. France chose the tiny-margin route instead, so the chaos merchant pick got humbled.</p><p>🧤 <b>Clean-sheet gang:</b><br>${franceClean.join(', ')} think Paraguay gets blanked by France.</p><p>👀 <b>Camy watch:</b><br>Camy joined late with Morocco 2-1 and France 4-1. Both winners were in the right neighborhood emotionally, but the scores were not invited to the party.</p><p>🔥 <b>4-1 corner:</b><br>${france41.join(', ')||'Nobody'} needed France 4-1 specifically. France winning 1-0 turned that lane into a dead end.</p>`;
+ const f=CURRENT_MATCHDAY.fixtures;
+ document.getElementById('currentOverview').innerHTML=`<h2>${CURRENT_MATCHDAY.date} — ${CURRENT_MATCHDAY.title}</h2><p class="note">No predictions are logged for this matchday yet. <b>Score Error starts from this matchday onward</b>, so Brazil vs Norway and Mexico vs England will be the first games where Score Error can affect tie-breakers.</p><p><span class="pill blue">${f.length} games scheduled</span> <span class="pill purple">0 predictions locked</span> <span class="pill green">Ready for picks</span></p>`;
+ document.getElementById('currentGame1').innerHTML=renderUpcomingFixture(f[0]);
+ document.getElementById('currentGame2').innerHTML=renderUpcomingFixture(f[1]);
+ document.getElementById('currentDrama').innerHTML=`<p>📌 <b>Cleaner structure now:</b><br>Completed games live in <b>Past Predictions</b>. Upcoming games live here. That way this page will not get insane once the tournament piles up.</p><p>📝 <b>Tonight's picks needed:</b><br>Brazil vs Norway and Mexico vs England are both empty right now.</p><p>📏 <b>New rule from July 5 onward:</b><br>Score Error will be counted for these matches and every match after. July 4 predictions stay under the old rules because the rule was not announced before those picks were made.</p>`;
 }
-
+function renderUpcomingFixture(f){
+ const predCount=f.predictions.length;
+ return `<div class="fixtureCard"><div class="matchTitle">${escapeHtml(f.fixture)}</div><div class="scoreBig">${escapeHtml(f.homeTeam)} vs ${escapeHtml(f.awayTeam)}</div><p><span class="pill blue">${f.stage}</span> <span class="pill gold">${f.kickoff}</span></p><p class="note"><b>Venue:</b> ${escapeHtml(f.venue)}</p><div class="mutedLine"><span class="pill ${predCount?'green':'red'}">${predCount} prediction${predCount===1?'':'s'} logged</span></div></div>`;
+}
+function renderPastPredictions(){
+ const totalPicks=flatPastPicks().length;
+ const totalFixtures=PAST_MATCHDAYS.reduce((s,d)=>s+d.fixtures.length,0);
+ document.getElementById('pastOverview').innerHTML=`<h2>${totalFixtures} completed games archived</h2><p class="note">This archive is built by matchday, so it can keep growing without ruining the Current Predictions tab. New completed days should be added as another object inside <b>PAST_MATCHDAYS</b>.</p><p><span class="pill blue">${PAST_MATCHDAYS.length} matchday${PAST_MATCHDAYS.length===1?'':'s'}</span> <span class="pill purple">${totalPicks} archived picks</span></p>`;
+ document.getElementById('pastArchive').innerHTML=PAST_MATCHDAYS.map(day=>`<div class="mutedLine"><h2>${escapeHtml(day.date)} — ${escapeHtml(day.title)}</h2><p class="note">${escapeHtml(day.summary)}</p>${day.fixtures.map(renderFixtureArchive).join('')}</div>`).join('');
+}
 function render(){
- renderCurrentPredictions();
- const rows=calc(), leader=rows[0], avgAcc=rows.reduce((s,p)=>s+p.acc,0)/rows.length; const topPoints=Math.max(...rows.map(p=>p.points)); const pointsLeaders=rows.filter(p=>p.points===topPoints).map(p=>p.name).join(', '); const mostExcited=[...rows].sort((a,b)=>b.preds-a.preds||b.points-a.points||a.name.localeCompare(b.name))[0]; const efficiency=[...rows].filter(p=>p.preds>0).sort((a,b)=>b.acc-a.acc||b.points-a.points||a.name.localeCompare(b.name))[0]||rows[0]; const gdGuru=[...rows].sort((a,b)=>b.gdHits-a.gdHits||b.points-a.points||b.preds-a.preds||a.name.localeCompare(b.name))[0]; const totalGd=rows.reduce((s,p)=>s+p.gdHits,0), totalPreds=rows.reduce((s,p)=>s+p.preds,0); const actualCount=Object.keys(actuals).length;
+ renderCurrentPredictions(); renderPastPredictions();
+ const rows=calc(), leader=rows[0], avgAcc=rows.reduce((s,p)=>s+p.acc,0)/rows.length;
+ const topPoints=Math.max(...rows.map(p=>p.points));
+ const pointsLeaders=rows.filter(p=>p.points===topPoints).map(p=>p.name).join(', ');
+ const mostExcited=[...rows].sort((a,b)=>b.preds-a.preds||b.points-a.points||a.name.localeCompare(b.name))[0];
+ const efficiency=[...rows].filter(p=>p.preds>0).sort((a,b)=>b.acc-a.acc||b.points-a.points||a.name.localeCompare(b.name))[0]||rows[0];
+ const gdGuru=[...rows].sort((a,b)=>b.gdHits-a.gdHits||b.points-a.points||b.preds-a.preds||a.name.localeCompare(b.name))[0];
+ const totalGd=rows.reduce((s,p)=>s+p.gdHits,0), totalPreds=rows.reduce((s,p)=>s+p.preds,0);
  document.getElementById('kpis').innerHTML=`<div class="card"><div class="label">Current leader</div><div class="value">${leader.name}</div><div class="small">Points leaders: ${pointsLeaders}</div></div><div class="card"><div class="label">Players</div><div class="value">${rows.length}</div><div class="small">Nine friends in the league</div></div><div class="card"><div class="label">Games left</div><div class="value">${remainingGames}</div><div class="small">Manual nightly update</div></div><div class="card"><div class="label">Predictions logged</div><div class="value">${totalPreds}</div><div class="small">Most active: ${mostExcited.name}</div></div><div class="card"><div class="label">League accuracy</div><div class="value">${pct(avgAcc)}</div><div class="small">Goal-diff hits: ${totalGd}</div></div>`;
- document.getElementById('table').innerHTML=`<table><thead><tr><th>#</th><th>Player</th><th>Pts</th><th>GD</th><th>Preds</th><th>Accuracy</th><th class="hide-sm">Left</th><th class="hide-sm">Possible</th></tr></thead><tbody>${rows.map((p,i)=>`<tr class="${i===0?'rank1':''}"><td><span class="rankBadge">${medal(i)}</span></td><td><div class="player"><div class="avatar">${p.name[0]}</div><div><b>${p.name}</b><div class="small">${i===0?'🔥 current leader':p.points===topPoints?'tied on points':'chasing'}</div></div></div></td><td><span class="pill gold">${p.points}</span></td><td><span class="pill green">${p.gdHits}</span></td><td>${p.preds}</td><td><div>${pct(p.acc)}</div><div class="bar"><i style="width:${Math.min(100,p.acc)}%"></i></div></td><td class="hide-sm">${remainingGames}</td><td class="hide-sm"><span class="pill purple">${p.maxPredsPossible}</span></td></tr>`).join('')}</tbody></table>`;
- document.getElementById('leader').innerHTML=`<div class="leader">${leader.name}</div><p class="note"><b>${leader.name}</b> leads after the tie-breaker stack: points → GD hits → more predictions made → alphabetical.</p><p><span class="pill gold">${leader.points} point${leader.points==1?'':'s'}</span> <span class="pill green">${leader.gdHits} GD hit${leader.gdHits==1?'':'s'}</span> <span class="pill purple">${leader.preds} predictions</span></p>`;
- const oddsTotal=rows.reduce((s,p)=>s+p.odds,0)||1; document.getElementById('odds').innerHTML=rows.map(p=>`<div class="chartLine"><b>${p.name}</b><div class="bar"><i style="width:${100*p.odds/oddsTotal}%"></i></div><span class="pill green">${pct(100*p.odds/oddsTotal)}</span></div>`).join('');
- const watch=rows.filter(p=>p.name!==leader.name).sort((a,b)=>b.projected-a.projected||b.gdHits-a.gdHits||b.preds-a.preds||a.name.localeCompare(b.name))[0]||leader; document.getElementById('watch').innerHTML=`<h2>${watch.name}</h2><p class="note">Watch out for ${watch.name}: projected ${watch.projected.toFixed(1)} points, ${watch.gdHits} GD hit${watch.gdHits==1?'':'s'}, and ${watch.maxPredsPossible} total possible predictions if they play every remaining match.</p>`;
- const underdog=[...rows].reverse().find(p=>p.preds<mostExcited.preds)||rows[rows.length-1]; const pressure=rows.filter(p=>p.points===topPoints).length>1?'The top is crowded — one exact score can flip the whole table.':'The leader has separation, but one exact score still changes the vibe.'; document.getElementById('awards').innerHTML=`<p>🎮 <b>Most excited to play:</b><br>${mostExcited.name} with ${mostExcited.preds} predictions.</p><p>🎯 <b>Efficiency king:</b><br>${efficiency.name} at ${pct(efficiency.acc)} accuracy.</p><p>📐 <b>Goal-difference guru:</b><br>${gdGuru.gdHits?gdGuru.name+' with '+gdGuru.gdHits+' hits':'No goal-diff hits logged yet.'}</p><p>🐺 <b>Sleeping giant:</b><br>${underdog.name} still has room to climb.</p><p>🌶️ <b>Drama level:</b><br>${pressure}</p>`;
- const spread=rows[0].points-rows[rows.length-1].points; const nearest=rows.filter(p=>p.name!==leader.name).sort((a,b)=>(leader.points-a.points)-(leader.points-b.points)||b.gdHits-a.gdHits||b.preds-a.preds)[0]; const activePack=rows.filter(p=>p.preds===mostExcited.preds).map(p=>p.name).join(', '); document.getElementById('standingInsights').innerHTML=`<p>🏁 <b>Table gap:</b><br>${spread} point${spread==1?'':'s'} separate first and last.</p><p>👀 <b>Nearest challenger:</b><br>${nearest?nearest.name+' is closest to '+leader.name:'No challenger yet'}.</p><p>🎮 <b>Most active pack:</b><br>${activePack}</p><p>⚖️ <b>Tie-break watch:</b><br>${gdGuru.name} has the strongest GD-hit profile right now.</p>`;
- const zeroClub=rows.filter(p=>p.preds===0).map(p=>p.name).join(', ')||'Nobody'; const needsExact=rows.filter(p=>p.points===0&&p.preds>0).map(p=>p.name).join(', ')||'Nobody'; const closestPack=rows.filter(p=>p.gdHits>0).sort((a,b)=>b.gdHits-a.gdHits||b.preds-a.preds).map(p=>`${p.name} (${p.gdHits})`).join(', ')||'No GD hits yet'; document.getElementById('statlab').innerHTML=`<p>🧊 <b>Yet to enter:</b><br>${zeroClub}</p><p>🔓 <b>Needs first exact score:</b><br>${needsExact}</p><p>📐 <b>Closest-score crew:</b><br>${closestPack}</p><p>🧾 <b>Update mode:</b><br>View-only board. Edit the START data in the HTML and re-upload nightly.</p>`;
- const analyst=[]; const chasers=rows.filter(p=>p.name!==leader.name); const onePointAway=chasers.filter(p=>p.points+1>leader.points||(p.points+1===leader.points&&(p.gdHits>leader.gdHits||(p.gdHits===leader.gdHits&&p.preds>=leader.preds)))); if(onePointAway.length) analyst.push(`⚡ <b>One-hit takeover watch:</b> ${onePointAway.map(p=>p.name).join(', ')} can jump into first with one exact score, depending on GD hits and prediction count.`); const gdThreat=chasers.filter(p=>p.points===leader.points&&p.gdHits<leader.gdHits).sort((a,b)=>leader.gdHits-a.gdHits)[0]; if(gdThreat) analyst.push(`📐 <b>GD chase:</b> ${gdThreat.name} is level on points but needs ${leader.gdHits-gdThreat.gdHits} more GD hit${leader.gdHits-gdThreat.gdHits===1?'':'s'} to match ${leader.name}'s tie-break cushion.`); const inactive=rows.filter(p=>p.preds===0).map(p=>p.name); if(inactive.length) analyst.push(`🕵️ <b>Mystery entrants:</b> ${inactive.join(', ')} have not predicted yet, so their ceiling depends completely on whether they start playing.`); const lessPlayed=rows.filter(p=>p.preds>0&&p.preds<mostExcited.preds).sort((a,b)=>a.preds-b.preds).map(p=>p.name); if(lessPlayed.length) analyst.push(`🎮 <b>Games-in-hand vibe:</b> ${lessPlayed.join(', ')} have played less than the most active pack, so more submissions could change their story quickly.`); const overtakeText=rows.slice(1).map(p=>{let needPts=Math.max(0,leader.points-p.points+1); if(p.points===leader.points){if(p.gdHits<leader.gdHits)return `${p.name}: needs ${leader.gdHits-p.gdHits} GD hit${leader.gdHits-p.gdHits===1?'':'s'} or 1 exact score to pass ${leader.name}`; if(p.gdHits===leader.gdHits&&p.preds<leader.preds)return `${p.name}: needs ${leader.preds-p.preds} more prediction${leader.preds-p.preds===1?'':'s'} or 1 exact score to pass ${leader.name}`;} return `${p.name}: needs ${needPts} exact-score point${needPts===1?'':'s'} to move ahead of ${leader.name}`;}).slice(0,7).join('<br>'); analyst.push(`🧮 <b>Path to top:</b><br>${overtakeText}`); document.getElementById('autoAnalyst').innerHTML=analyst.map(x=>`<p class="note">${x}</p>`).join('');
- const banter=[]; if(gdGuru.gdHits>0)banter.push(`📐 ${gdGuru.name} is reading goal difference like it is a secret menu.`); if(mostExcited.preds>0)banter.push(`🎮 ${mostExcited.name} is treating the prediction sheet like daily cardio.`); if(rows.some(p=>p.points===0&&p.preds>0))banter.push(`🍀 The zero-point crew is not finished — they are just building dramatic tension.`); if(rows.filter(p=>p.points===topPoints).length>1)banter.push(`🍿 The top of the table is so tight even the tie-breakers need tie-breakers.`); if(inactive.length)banter.push(`👀 ${inactive.join(' and ')} are still in stealth mode. Bold strategy.`); document.getElementById('banter').innerHTML=banter.map(x=>`<p class="note">${x}</p>`).join('')||'<p class="note">No banter yet — the table is behaving suspiciously normal.</p>';
-
+ document.getElementById('table').innerHTML=`<table><thead><tr><th>Rank</th><th>Player</th><th>Exact-Score Points</th><th>Score Error<br><span class="small">starts Jul 5</span></th><th>GD Hits</th><th>Correct Winner Picked</th><th>Predictions Made</th><th>Hit Rate</th></tr></thead><tbody>${rows.map((p,i)=>`<tr class="${i===0?'rank1':''}"><td><span class="rankBadge">${medal(i)}</span></td><td><div class="player"><div class="avatar">${p.name[0]}</div><div><b>${p.name}</b><div class="small">${i===0?'🔥 current leader':p.points===topPoints?'tied on points':'chasing'}</div></div></div></td><td><span class="pill gold">${p.points}</span></td><td><span class="pill purple">${errorFmt(p)}</span></td><td><span class="pill green">${p.gdHits}</span></td><td><span class="pill blue">${p.winnerHits}</span></td><td>${p.preds}</td><td><div>${pct(p.acc)}</div><div class="bar"><i style="width:${Math.min(100,p.acc)}%"></i></div></td></tr>`).join('')}</tbody></table>`;
+ document.getElementById('leader').innerHTML=`<div class="leader">${leader.name}</div><p class="note"><b>${leader.name}</b> leads because the table checks tie-breakers in this order:</p><p class="note"><b>Ranking order:</b><br>1) Exact-score points → 2) Score Error <span class="pill blue">starts July 5</span> → 3) GD hits → 4) Correct Winner Picked → 5) Predictions Made → 6) Alphabetical</p><p class="note"><b>Important fairness note:</b><br>Score Error is <b>not counted for the July 4 games</b> because that rule was added after everyone had already made those picks. Morocco vs Canada and France vs Paraguay stay under the old tie-break rules.</p><p class="note"><b>How Score Error will work from July 5 onward:</b><br>For each eligible completed match:<br><b>Score Error = difference in Team A goals + difference in Team B goals.</b><br><br><b>Example:</b> Actual score is <b>Brazil 2-1 Norway</b>.<br>• Picked Brazil <b>2-1</b>: off by 0 + 0 = <b>0 error</b><br>• Picked Brazil <b>3-1</b>: off by 1 + 0 = <b>1 error</b><br>• Picked Brazil <b>2-0</b>: off by 0 + 1 = <b>1 error</b><br>• Picked Brazil <b>4-0</b>: off by 2 + 1 = <b>3 error</b><br><br><b>Lower Score Error is better.</b> It rewards the player whose scoreline was closest, even when nobody gets the exact score.</p><p class="note"><b>Why rankings changed back:</b><br>Since July 4 Score Error is not counted, the current table goes back to the old tie-breakers until July 5 results are in. So if players are tied on exact-score points, the site now skips Score Error for now and looks at <b>GD hits</b>, then <b>Correct Winner Picked</b>, then <b>Predictions Made</b>.</p><p><span class="pill gold">${leader.points} exact-score point${leader.points==1?'':'s'}</span> <span class="pill purple">${errorFmt(leader)} score error from eligible games</span> <span class="pill green">${leader.gdHits} GD hit${leader.gdHits==1?'':'s'}</span> <span class="pill blue">${leader.winnerHits} correct winner pick${leader.winnerHits==1?'':'s'}</span> <span class="pill purple">${leader.preds} predictions</span></p>`;
+ const oddsTotal=rows.reduce((s,p)=>s+p.odds,0)||1;
+ document.getElementById('odds').innerHTML=rows.map(p=>`<div class="chartLine"><b>${p.name}</b><div class="bar"><i style="width:${100*p.odds/oddsTotal}%"></i></div><span class="pill green">${pct(100*p.odds/oddsTotal)}</span></div>`).join('');
+ const watch=rows.filter(p=>p.name!==leader.name).sort((a,b)=>b.projected-a.projected||b.gdHits-a.gdHits||b.preds-a.preds||a.name.localeCompare(b.name))[0]||leader;
+ document.getElementById('watch').innerHTML=`<h2>${watch.name}</h2><p class="note">Watch out for ${watch.name}: projected ${watch.projected.toFixed(1)} points, ${watch.gdHits} GD hit${watch.gdHits==1?'':'s'}, with ${watch.winnerHits} correct winner pick${watch.winnerHits==1?'':'s'} and Score Error waiting to matter from July 5 onward.</p>`;
+ const underdog=[...rows].reverse().find(p=>p.preds<mostExcited.preds)||rows[rows.length-1];
+ const pressure=rows.filter(p=>p.points===topPoints).length>1?'The top is crowded — one exact score can flip the whole table.':'The leader has separation, but one exact score still changes the vibe.';
+ document.getElementById('awards').innerHTML=`<p>🎮 <b>Most excited to play:</b><br>${mostExcited.name} with ${mostExcited.preds} predictions.</p><p>🎯 <b>Efficiency king:</b><br>${efficiency.name} at ${pct(efficiency.acc)} accuracy.</p><p>📐 <b>Goal-difference guru:</b><br>${gdGuru.gdHits?gdGuru.name+' with '+gdGuru.gdHits+' hits':'No goal-diff hits logged yet.'}</p><p>🐺 <b>Sleeping giant:</b><br>${underdog.name} still has room to climb.</p><p>🌶️ <b>Drama level:</b><br>${pressure}</p>`;
+ const spread=rows[0].points-rows[rows.length-1].points;
+ const nearest=rows.filter(p=>p.name!==leader.name).sort((a,b)=>(leader.points-a.points)-(leader.points-b.points)||b.gdHits-a.gdHits||b.preds-a.preds)[0];
+ const activePack=rows.filter(p=>p.preds===mostExcited.preds).map(p=>p.name).join(', ');
+ const winnerKing=[...rows].sort((a,b)=>b.winnerHits-a.winnerHits||b.points-a.points||a.name.localeCompare(b.name))[0];
+ const errorKing=[...rows].filter(p=>p.errorPerScored!==null).sort((a,b)=>a.errorPerScored-b.errorPerScored||b.winnerHits-a.winnerHits||a.name.localeCompare(b.name))[0];
+ document.getElementById('standingInsights').innerHTML=`<p>🏁 <b>Table gap:</b><br>${spread} point${spread==1?'':'s'} separate first and last.</p><p>👀 <b>Nearest challenger:</b><br>${nearest?nearest.name+' is closest to '+leader.name:'No challenger yet'}.</p><p>🎮 <b>Most active pack:</b><br>${activePack}</p><p>⚖️ <b>Tie-break watch:</b><br>${gdGuru.name} owns the GD profile, ${winnerKing.name} is strongest on Correct Winner Picked, and ${errorKing?errorKing.name+' has the cleanest eligible Score Error at '+errorFmt(errorKing):'Score Error starts with the July 5 finals'}.</p>`;
+ const zeroClub=rows.filter(p=>p.preds===0).map(p=>p.name).join(', ')||'Nobody';
+ const needsExact=rows.filter(p=>p.points===0&&p.preds>0).map(p=>p.name).join(', ')||'Nobody';
+ const errorPack=rows.filter(p=>p.errorPerScored!==null).sort((a,b)=>a.errorPerScored-b.errorPerScored||b.winnerHits-a.winnerHits||a.name.localeCompare(b.name)).map(p=>`${p.name} (${errorFmt(p)})`).join(', ')||'Starts after July 5 results';
+ const winnerPack=rows.filter(p=>p.winnerHits>0).sort((a,b)=>b.winnerHits-a.winnerHits||a.errorPerScored-b.errorPerScored||a.name.localeCompare(b.name)).map(p=>`${p.name} (${p.winnerHits})`).join(', ')||'No correct winner picks yet';
+ document.getElementById('statlab').innerHTML=`<p>🧊 <b>Yet to enter:</b><br>${zeroClub}</p><p>🔓 <b>Needs first exact score:</b><br>${needsExact}</p><p>✅ <b>Correct-winner crew:</b><br>${winnerPack}</p><p>📏 <b>Lowest score-error board:</b><br>${errorPack}</p><p>🧾 <b>Update mode:</b><br>View-only board. Current matchday stays separate from the Past Predictions archive.</p>`;
+ const analyst=[]; const chasers=rows.filter(p=>p.name!==leader.name);
+ analyst.push(`🗂️ <b>Structure update:</b> Past Predictions is now the archive. Current Predictions only shows the upcoming matchday, so this will scale better as the tournament fills up.`);
+ analyst.push(`🧠 <b>Tie-breaker era:</b> Exact scores still rule, but Score Error begins with the July 5 games. It will become the first separator after exact-score points once eligible finals are logged.`);
+ const inactive=rows.filter(p=>p.preds===0).map(p=>p.name); if(inactive.length) analyst.push(`🕵️ <b>Mystery entrants:</b> ${inactive.join(', ')} have not predicted yet, so their ceiling depends completely on whether they start playing.`);
+ const overtakeText=rows.slice(1).map(p=>{let needPts=Math.max(0,leader.points-p.points+1); if(p.points===leader.points){if((p.errorPerScored??999)>(leader.errorPerScored??999))return `${p.name}: needs to lower Score Error below ${errorFmt(leader)} or hit 1 exact score to pass ${leader.name}`; if((p.errorPerScored??999)===(leader.errorPerScored??999)&&p.gdHits<leader.gdHits)return `${p.name}: needs ${leader.gdHits-p.gdHits} GD hit${leader.gdHits-p.gdHits===1?'':'s'} or 1 exact score to pass ${leader.name}`; if((p.errorPerScored??999)===(leader.errorPerScored??999)&&p.gdHits===leader.gdHits&&p.winnerHits<leader.winnerHits)return `${p.name}: needs ${leader.winnerHits-p.winnerHits} Correct Winner Pick${leader.winnerHits-p.winnerHits===1?'':'s'} or 1 exact score to pass ${leader.name}`;} return `${p.name}: needs ${needPts} exact-score point${needPts===1?'':'s'} to move ahead of ${leader.name}`;}).slice(0,7).join('<br>');
+ analyst.push(`🧮 <b>Path to top:</b><br>${overtakeText}`);
+ document.getElementById('autoAnalyst').innerHTML=analyst.map(x=>`<p class="note">${x}</p>`).join('');
+ const banter=[]; if(gdGuru.gdHits>0)banter.push(`📐 ${gdGuru.name} is reading goal difference like it is a secret menu.`); if(mostExcited.preds>0)banter.push(`🎮 ${mostExcited.name} is treating the prediction sheet like daily cardio.`); if(errorKing)banter.push(`📏 ${errorKing.name} is currently the least wrong on eligible Score Error.`); else banter.push(`📏 Score Error has not kicked in yet — Brazil/Norway and Mexico/England start the new rule.`); if(rows.some(p=>p.points===0&&p.preds>0))banter.push(`🍀 The zero-point crew is not finished — they are just building dramatic tension.`); if(inactive.length)banter.push(`👀 ${inactive.join(' and ')} are still in stealth mode. Bold strategy.`);
+ document.getElementById('banter').innerHTML=banter.map(x=>`<p class="note">${x}</p>`).join('')||'<p class="note">No banter yet — the table is behaving suspiciously normal.</p>';
 }
 function toast(t){let el=document.getElementById('toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',2200)}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active')});
