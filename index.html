@@ -70,7 +70,7 @@ const CURRENT_MATCHDAY={
  date:'July 5, 2026',
  title:'Round of 16: Brazil/Norway + Mexico/England',
  fixtures:[
-  {id:'bra-nor',fixture:'Brazil vs Norway',homeTeam:'Brazil',awayTeam:'Norway',kickoff:'4:00 PM ET',venue:'New York New Jersey Stadium',stage:'Round of 16',scoreErrorEligible:true,predictions:[
+  {id:'bra-nor',fixture:'Brazil vs Norway',homeTeam:'Brazil',awayTeam:'Norway',kickoff:'4:00 PM ET',venue:'New York New Jersey Stadium',stage:'Round of 16',scoreErrorEligible:true,actual:{home:1,away:2,status:'Final',summary:'Norway beat Brazil 2-1'},predictions:[
    {playerId:'party',player:'Party Animal',home:2,away:3,note:'Norway win'},
    {playerId:'roxy',player:'Roxy',home:3,away:3,note:'Draw; Brazil through on penalties'},
    {playerId:'risky',player:'Risky',home:2,away:1,note:'Brazil win'},
@@ -93,7 +93,7 @@ const CURRENT_MATCHDAY={
  ]
 };
 
-const DEFAULT_GAMES_LEFT=14;
+const DEFAULT_GAMES_LEFT=13;
 let remainingGames=DEFAULT_GAMES_LEFT;
 let players=JSON.parse(JSON.stringify(START));
 
@@ -104,6 +104,11 @@ function escapeHtml(v){return String(v).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'
 function errorFmt(p){return p.errorPerScored===null?'—':p.errorPerScored.toFixed(1)}
 function flatPastPicks(){
  return PAST_MATCHDAYS.flatMap(day=>day.fixtures.flatMap(f=>f.predictions.map(p=>({...p,fixtureId:f.id,fixture:f.fixture,homeTeam:f.homeTeam,awayTeam:f.awayTeam,actual:f.actual,scoreErrorEligible:f.scoreErrorEligible!==false,date:day.date}))));
+}
+function flatCompletedPicks(){
+ const archived=flatPastPicks();
+ const currentCompleted=CURRENT_MATCHDAY.fixtures.filter(f=>f.actual).flatMap(f=>f.predictions.map(p=>({...p,fixtureId:f.id,fixture:f.fixture,homeTeam:f.homeTeam,awayTeam:f.awayTeam,actual:f.actual,scoreErrorEligible:f.scoreErrorEligible!==false,date:CURRENT_MATCHDAY.date})));
+ return archived.concat(currentCompleted);
 }
 function predictionWinnerSide(p){
  const diff=(+p.home)-(+p.away);
@@ -131,22 +136,25 @@ function pickResult(p){
  return {label:'Miss',cls:'red',detail:'Wrong result direction'};
 }
 function historyStatsFor(pid){
- const picks=flatPastPicks().filter(p=>p.playerId===pid);
- let winnerHits=0, scoredPicks=0, scoreErrorTotal=0;
+ const picks=flatCompletedPicks().filter(p=>p.playerId===pid);
+ let exactPoints=0, gdHits=0, winnerHits=0, scoredPicks=0, scoreErrorTotal=0;
  picks.forEach(p=>{
   if(!p.actual) return;
+  const pickDiff=(+p.home)-(+p.away), actualDiff=(+p.actual.home)-(+p.actual.away);
+  if(+p.home===+p.actual.home && +p.away===+p.actual.away) exactPoints++;
+  if(pickDiff===actualDiff) gdHits++;
   if(predictionWinnerSide(p)===actualWinnerSide(p.actual)) winnerHits++;
   // Score Error starts from July 5, 2026 onward. Older archived games stay under the old rules.
   if(p.scoreErrorEligible){scoredPicks++; scoreErrorTotal+=scoreError(p,p.actual);}
  });
- return {winnerHits,scoredPicks,scoreErrorTotal};
+ return {exactPoints,gdHits,winnerHits,scoredPicks,scoreErrorTotal};
 }
 function calc(){
  const base=players.map(p=>{
   const h=historyStatsFor(p.id);
   const preds=(+p.manualPreds||0);
-  const points=(+p.manualPoints||0);
-  const gdHits=(+p.manualGdHits||0);
+  const points=(+p.manualPoints||0)+h.exactPoints;
+  const gdHits=(+p.manualGdHits||0)+h.gdHits;
   const winnerHits=(+p.manualWinnerHits||0)+h.winnerHits;
   const scoreErrorTotal=(+p.manualScoreError||0)+h.scoreErrorTotal;
   const scoredPicks=h.scoredPicks;
@@ -189,10 +197,12 @@ function renderFixtureArchive(f){
 function renderCurrentPredictions(){
  const f=CURRENT_MATCHDAY.fixtures;
  const totalCurrent=f.reduce((s,x)=>s+x.predictions.length,0);
+ const completed=f.filter(x=>x.actual).length;
+ const pending=f.length-completed;
  const activePlayers=[...new Set(f.flatMap(x=>x.predictions.map(p=>p.player)))];
- document.getElementById('currentOverview').innerHTML=`<h2>${CURRENT_MATCHDAY.date} — ${CURRENT_MATCHDAY.title}</h2><p class="note"><b>Predictions are locked for today's two games.</b> These are the first games where <b>Score Error</b> will count once final scores are added. Until the actual results come in, exact points, GD hits, correct winners, and score error are all pending for this matchday.</p><p><span class="pill blue">${f.length} games scheduled</span> <span class="pill purple">${totalCurrent} predictions locked</span> <span class="pill green">${activePlayers.length} players submitted</span> <span class="pill gold">Score Error active from this matchday</span></p>`;
- document.getElementById('currentGame1').innerHTML=renderUpcomingFixture(f[0]);
- document.getElementById('currentGame2').innerHTML=renderUpcomingFixture(f[1]);
+ document.getElementById('currentOverview').innerHTML=`<h2>${CURRENT_MATCHDAY.date} — ${CURRENT_MATCHDAY.title}</h2><p class="note"><b>Predictions are locked for today's two games.</b> Brazil vs Norway is now final, so exact points, GD hits, correct winners, and Score Error have been applied for that game. Mexico vs England is still pending, so those stats will update again after the final score is added.</p><p><span class="pill blue">${f.length} games listed</span> <span class="pill gold">${completed} final</span> <span class="pill purple">${pending} pending</span> <span class="pill green">${activePlayers.length} players submitted</span> <span class="pill gold">Score Error active</span></p>`;
+ document.getElementById('currentGame1').innerHTML=f[0].actual?renderFixtureArchive(f[0]):renderUpcomingFixture(f[0]);
+ document.getElementById('currentGame2').innerHTML=f[1].actual?renderFixtureArchive(f[1]):renderUpcomingFixture(f[1]);
  document.getElementById('currentDrama').innerHTML=renderCurrentDrama(f);
 }
 function pickSideLabel(p){
@@ -217,7 +227,19 @@ function renderCurrentDrama(fixtures){
  const norway=b.predictions.filter(p=>predictionWinnerSide({...p,homeTeam:b.homeTeam,awayTeam:b.awayTeam})==='away').map(p=>p.player);
  const england=m.predictions.filter(p=>predictionWinnerSide({...p,homeTeam:m.homeTeam,awayTeam:m.awayTeam})==='away').map(p=>p.player);
  const mexicoPens=m.predictions.filter(p=>predictionWinnerSide({...p,homeTeam:m.homeTeam,awayTeam:m.awayTeam})==='draw').map(p=>p.player);
- return `<p>📏 <b>Score Error starts now:</b><br>Once the final scores are added, each player's score error will be calculated as <b>home-goal miss + away-goal miss</b>. Lower is better.</p><p>🇧🇷 <b>Brazil/Norway split:</b><br>Most people backed Brazil, but ${norway.length?norway.join(' and '):'nobody'} called Norway in normal time. ${brazilPens.length?brazilPens.join(' and ')+' sent Brazil through on pens.':'No Brazil penalty calls.'}</p><p>🇲🇽 <b>Mexico/England split:</b><br>Mexico is the crowd pick. ${england.length?england.join(' and ')+' backed England.':'Nobody backed England.'} ${mexicoPens.length?mexicoPens.join(' and ')+' has Mexico through on penalties.':'No Mexico penalty calls.'}</p><p>⏳ <b>Standings note:</b><br>Predictions made have been updated now, but exact-score points, GD hits, correct winner picked, and Score Error for July 5 will stay pending until final scores are entered.</p>`;
+ let brazilNote='';
+ if(b.actual){
+  const picks=b.predictions.map(p=>({...p,homeTeam:b.homeTeam,awayTeam:b.awayTeam,actual:b.actual}));
+  const exact=picks.filter(p=>+p.home===+b.actual.home && +p.away===+b.actual.away).map(p=>p.player);
+  const gd=picks.filter(p=>(+p.home-+p.away)===(+b.actual.home-+b.actual.away)).map(p=>p.player);
+  const winners=picks.filter(p=>predictionWinnerSide(p)===actualWinnerSide(b.actual)).map(p=>p.player);
+  const lowest=Math.min(...picks.map(p=>scoreError(p,b.actual)));
+  const closest=picks.filter(p=>scoreError(p,b.actual)===lowest).map(p=>p.player);
+  brazilNote=`<p>🇳🇴 <b>Norway shock update:</b><br>Norway beat Brazil <b>${b.actual.away}-${b.actual.home}</b> from the away side of this table. ${exact.length?exact.join(' and ')+' hit the exact score.':'No exact-score hit.'} ${gd.length?gd.join(' and ')+' earned a GD hit.':'No GD hits.'} ${winners.length?winners.join(' and ')+' got the winner right.':'Nobody picked the winner.'} <b>Best Score Error:</b> ${closest.join(' and ')} at ${lowest}.</p>`;
+ } else {
+  brazilNote=`<p>🇧🇷 <b>Brazil/Norway split:</b><br>Most people backed Brazil, but ${norway.length?norway.join(' and '):'nobody'} called Norway in normal time. ${brazilPens.length?brazilPens.join(' and ')+' sent Brazil through on pens.':'No Brazil penalty calls.'}</p>`;
+ }
+ return `<p>📏 <b>Score Error is active:</b><br>For completed July 5 games onward, each player's score error is <b>home-goal miss + away-goal miss</b>. Lower is better and now affects the standings after exact-score points.</p>${brazilNote}<p>🇲🇽 <b>Mexico/England still pending:</b><br>Mexico is the crowd pick. ${england.length?england.join(' and ')+' backed England.':'Nobody backed England.'} ${mexicoPens.length?mexicoPens.join(' and ')+' has Mexico through on penalties.':'No Mexico penalty calls.'}</p><p>⏳ <b>Standings note:</b><br>Brazil/Norway stats are live now. Mexico/England points, GD hits, correct winner picked, and Score Error will update after that final score is entered.</p>`;
 }
 function renderPastPredictions(){
  const totalPicks=flatPastPicks().length;
@@ -236,11 +258,11 @@ function render(){
  const totalGd=rows.reduce((s,p)=>s+p.gdHits,0), totalPreds=rows.reduce((s,p)=>s+p.preds,0);
  document.getElementById('kpis').innerHTML=`<div class="card"><div class="label">Current leader</div><div class="value">${leader.name}</div><div class="small">Points leaders: ${pointsLeaders}</div></div><div class="card"><div class="label">Players</div><div class="value">${rows.length}</div><div class="small">Nine friends in the league</div></div><div class="card"><div class="label">Games left</div><div class="value">${remainingGames}</div><div class="small">Manual nightly update</div></div><div class="card"><div class="label">Predictions logged</div><div class="value">${totalPreds}</div><div class="small">Most active: ${mostExcited.name}</div></div><div class="card"><div class="label">League accuracy</div><div class="value">${pct(avgAcc)}</div><div class="small">Goal-diff hits: ${totalGd}</div></div>`;
  document.getElementById('table').innerHTML=`<table><thead><tr><th>Rank</th><th>Player</th><th>Exact-Score Points</th><th>Score Error<br><span class="small">starts Jul 5</span></th><th>GD Hits</th><th>Correct Winner Picked</th><th>Predictions Made</th><th>Hit Rate</th></tr></thead><tbody>${rows.map((p,i)=>`<tr class="${i===0?'rank1':''}"><td><span class="rankBadge">${medal(i)}</span></td><td><div class="player"><div class="avatar">${p.name[0]}</div><div><b>${p.name}</b><div class="small">${i===0?'🔥 current leader':p.points===topPoints?'tied on points':'chasing'}</div></div></div></td><td><span class="pill gold">${p.points}</span></td><td><span class="pill purple">${errorFmt(p)}</span></td><td><span class="pill green">${p.gdHits}</span></td><td><span class="pill blue">${p.winnerHits}</span></td><td>${p.preds}</td><td><div>${pct(p.acc)}</div><div class="bar"><i style="width:${Math.min(100,p.acc)}%"></i></div></td></tr>`).join('')}</tbody></table>`;
- document.getElementById('leader').innerHTML=`<div class="leader">${leader.name}</div><p class="note"><b>${leader.name}</b> leads because the table checks tie-breakers in this order:</p><p class="note"><b>Ranking order:</b><br>1) Exact-score points → 2) Score Error <span class="pill blue">starts July 5</span> → 3) GD hits → 4) Correct Winner Picked → 5) Predictions Made → 6) Alphabetical</p><p class="note"><b>Important fairness note:</b><br>Score Error is <b>not counted for the July 4 games</b> because that rule was added after everyone had already made those picks. Morocco vs Canada and France vs Paraguay stay under the old tie-break rules.</p><p class="note"><b>How Score Error will work from July 5 onward:</b><br>For each eligible completed match:<br><b>Score Error = difference in Team A goals + difference in Team B goals.</b><br><br><b>Example:</b> Actual score is <b>Brazil 2-1 Norway</b>.<br>• Picked Brazil <b>2-1</b>: off by 0 + 0 = <b>0 error</b><br>• Picked Brazil <b>3-1</b>: off by 1 + 0 = <b>1 error</b><br>• Picked Brazil <b>2-0</b>: off by 0 + 1 = <b>1 error</b><br>• Picked Brazil <b>4-0</b>: off by 2 + 1 = <b>3 error</b><br><br><b>Lower Score Error is better.</b> It rewards the player whose scoreline was closest, even when nobody gets the exact score.</p><p class="note"><b>Why rankings changed back:</b><br>Since July 4 Score Error is not counted and July 5 results are not final yet, the current table still uses the old completed-game tie-breakers after exact-score points. The July 5 picks are logged in predictions made, but their points, GD hits, correct winners, and Score Error stay pending until final scores are added.</p><p><span class="pill gold">${leader.points} exact-score point${leader.points==1?'':'s'}</span> <span class="pill purple">${errorFmt(leader)} score error from eligible games</span> <span class="pill green">${leader.gdHits} GD hit${leader.gdHits==1?'':'s'}</span> <span class="pill blue">${leader.winnerHits} correct winner pick${leader.winnerHits==1?'':'s'}</span> <span class="pill purple">${leader.preds} predictions</span></p>`;
+ document.getElementById('leader').innerHTML=`<div class="leader">${leader.name}</div><p class="note"><b>${leader.name}</b> leads because the table checks tie-breakers in this order:</p><p class="note"><b>Ranking order:</b><br>1) Exact-score points → 2) Score Error <span class="pill blue">starts July 5</span> → 3) GD hits → 4) Correct Winner Picked → 5) Predictions Made → 6) Alphabetical</p><p class="note"><b>Important fairness note:</b><br>Score Error is <b>not counted for the July 4 games</b> because that rule was added after everyone had already made those picks. Morocco vs Canada and France vs Paraguay stay under the old tie-break rules.</p><p class="note"><b>How Score Error works from July 5 onward:</b><br>For each eligible completed match:<br><b>Score Error = difference in Team A goals + difference in Team B goals.</b><br><br><b>Real example from Brazil vs Norway:</b> Actual score was <b>Brazil 1-2 Norway</b>.<br>• Lil Diki picked <b>1-2</b>: off by 0 + 0 = <b>0 error</b><br>• Big Kaky picked <b>2-2</b>: off by 1 + 0 = <b>1 error</b><br>• Party Animal picked <b>2-3</b>: off by 1 + 1 = <b>2 error</b><br>• Porky/Big Ghos picked <b>3-1</b>: off by 2 + 1 = <b>3 error</b><br><br><b>Lower Score Error is better.</b> It rewards the player whose scoreline was closest, even when exact-score points are rare.</p><p class="note"><b>Why rankings changed now:</b><br>Brazil vs Norway is the first game where Score Error counts. Lil Diki got the exact score, GD hit, correct winner, and 0 Score Error. Big Kaky still stays high because he has an exact-score point already and only 1 Score Error from the Norway game. Players who picked Brazil lost the winner pick and took bigger Score Error totals.</p><p><span class="pill gold">${leader.points} exact-score point${leader.points==1?'':'s'}</span> <span class="pill purple">${errorFmt(leader)} score error from eligible games</span> <span class="pill green">${leader.gdHits} GD hit${leader.gdHits==1?'':'s'}</span> <span class="pill blue">${leader.winnerHits} correct winner pick${leader.winnerHits==1?'':'s'}</span> <span class="pill purple">${leader.preds} predictions</span></p>`;
  const oddsTotal=rows.reduce((s,p)=>s+p.odds,0)||1;
  document.getElementById('odds').innerHTML=rows.map(p=>`<div class="chartLine"><b>${p.name}</b><div class="bar"><i style="width:${100*p.odds/oddsTotal}%"></i></div><span class="pill green">${pct(100*p.odds/oddsTotal)}</span></div>`).join('');
  const watch=rows.filter(p=>p.name!==leader.name).sort((a,b)=>b.projected-a.projected||b.gdHits-a.gdHits||b.preds-a.preds||a.name.localeCompare(b.name))[0]||leader;
- document.getElementById('watch').innerHTML=`<h2>${watch.name}</h2><p class="note">Watch out for ${watch.name}: projected ${watch.projected.toFixed(1)} points, ${watch.gdHits} GD hit${watch.gdHits==1?'':'s'}, with ${watch.winnerHits} correct winner pick${watch.winnerHits==1?'':'s'} and Score Error waiting to matter from July 5 onward.</p>`;
+ document.getElementById('watch').innerHTML=`<h2>${watch.name}</h2><p class="note">Watch out for ${watch.name}: projected ${watch.projected.toFixed(1)} points, ${watch.gdHits} GD hit${watch.gdHits==1?'':'s'}, with ${watch.winnerHits} correct winner pick${watch.winnerHits==1?'':'s'} and ${errorFmt(watch)} eligible Score Error.</p>`;
  const underdog=[...rows].reverse().find(p=>p.preds<mostExcited.preds)||rows[rows.length-1];
  const pressure=rows.filter(p=>p.points===topPoints).length>1?'The top is crowded — one exact score can flip the whole table.':'The leader has separation, but one exact score still changes the vibe.';
  document.getElementById('awards').innerHTML=`<p>🎮 <b>Most excited to play:</b><br>${mostExcited.name} with ${mostExcited.preds} predictions.</p><p>🎯 <b>Efficiency king:</b><br>${efficiency.name} at ${pct(efficiency.acc)} accuracy.</p><p>📐 <b>Goal-difference guru:</b><br>${gdGuru.gdHits?gdGuru.name+' with '+gdGuru.gdHits+' hits':'No goal-diff hits logged yet.'}</p><p>🐺 <b>Sleeping giant:</b><br>${underdog.name} still has room to climb.</p><p>🌶️ <b>Drama level:</b><br>${pressure}</p>`;
@@ -257,7 +279,7 @@ function render(){
  document.getElementById('statlab').innerHTML=`<p>🧊 <b>Yet to enter:</b><br>${zeroClub}</p><p>🔓 <b>Needs first exact score:</b><br>${needsExact}</p><p>✅ <b>Correct-winner crew:</b><br>${winnerPack}</p><p>📏 <b>Lowest score-error board:</b><br>${errorPack}</p><p>🧾 <b>Update mode:</b><br>View-only board. Current matchday stays separate from the Past Predictions archive.</p>`;
  const analyst=[]; const chasers=rows.filter(p=>p.name!==leader.name);
  analyst.push(`🗂️ <b>Structure update:</b> Past Predictions is now the archive. Current Predictions only shows the upcoming matchday, so this will scale better as the tournament fills up.`);
- analyst.push(`🧠 <b>Tie-breaker era:</b> Exact scores still rule, but Score Error begins with the July 5 games. It will become the first separator after exact-score points once eligible finals are logged.`);
+ analyst.push(`🧠 <b>Tie-breaker era:</b> Exact scores still rule, and Score Error is now live after Norway beat Brazil 2-1. It is the first separator after exact-score points.`);
  const inactive=rows.filter(p=>p.preds===0).map(p=>p.name); if(inactive.length) analyst.push(`🕵️ <b>Mystery entrants:</b> ${inactive.join(', ')} have not predicted yet, so their ceiling depends completely on whether they start playing.`);
  const overtakeText=rows.slice(1).map(p=>{let needPts=Math.max(0,leader.points-p.points+1); if(p.points===leader.points){if((p.errorPerScored??999)>(leader.errorPerScored??999))return `${p.name}: needs to lower Score Error below ${errorFmt(leader)} or hit 1 exact score to pass ${leader.name}`; if((p.errorPerScored??999)===(leader.errorPerScored??999)&&p.gdHits<leader.gdHits)return `${p.name}: needs ${leader.gdHits-p.gdHits} GD hit${leader.gdHits-p.gdHits===1?'':'s'} or 1 exact score to pass ${leader.name}`; if((p.errorPerScored??999)===(leader.errorPerScored??999)&&p.gdHits===leader.gdHits&&p.winnerHits<leader.winnerHits)return `${p.name}: needs ${leader.winnerHits-p.winnerHits} Correct Winner Pick${leader.winnerHits-p.winnerHits===1?'':'s'} or 1 exact score to pass ${leader.name}`;} return `${p.name}: needs ${needPts} exact-score point${needPts===1?'':'s'} to move ahead of ${leader.name}`;}).slice(0,7).join('<br>');
  analyst.push(`🧮 <b>Path to top:</b><br>${overtakeText}`);
