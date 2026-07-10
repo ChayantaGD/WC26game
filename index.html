@@ -428,6 +428,24 @@ function currentWinnerStreak(pid){
  });
  return streak;
 }
+function currentExactScoreStreak(pid){
+ let streak=0;
+ completedFixturesForAwards().forEach(f=>{
+  const p=pickForFixture(f,pid);
+  if(!p) return;
+  if(+p.home===+f.actual.home && +p.away===+f.actual.away) streak++;
+  else streak=0;
+ });
+ return streak;
+}
+// Historical momentum is intentionally retained across updates so the Insights tab
+// can describe multi-match movement, not only the latest single ranking change.
+const INSIGHT_MOMENTUM={
+ playerId:'risky',
+ placesClimbed:5,
+ predictionSpan:2,
+ description:'from the lower pack to the top of the table'
+};
 function heartbreakCount(pid){
  let n=0;
  flatCompletedPicks().filter(p=>p.playerId===pid && p.actual).forEach(p=>{
@@ -473,13 +491,23 @@ function storylineBadges(rows,prevRanks){
  const active=rows.filter(p=>p.preds>0);
  const bull=clearTop(rows,p=>p.gdHits,true,1);
  cards.push(bull?awardCard('🎯','Bullseye',bull.item.name,`${bull.value} GD hit${bull.value===1?'':'s'} — best margin reader.`):awardCard('🎯','Bullseye','No clear holder yet','Needs a solo leader in GD hits.',true));
- const hot=clearTop(active,p=>currentWinnerStreak(p.id),true,1);
- cards.push(hot?awardCard('🔥','Hot Streak',hot.item.name,`${hot.value} correct winner pick${hot.value===1?'':'s'} in a row.`):awardCard('🔥','Hot Streak','No clear streak yet','Nobody has separated on current winner streak.',true));
+ const exactHot=clearTop(active,p=>currentExactScoreStreak(p.id),true,2);
+ if(exactHot){
+  cards.push(awardCard('🔥','Hot Streak',exactHot.item.name,`${exactHot.value} exact-score hits in a row — France 2-0 Morocco followed by Spain 2-1 Belgium.`));
+ }else{
+  const winnerHot=clearTop(active,p=>currentWinnerStreak(p.id),true,2);
+  cards.push(winnerHot?awardCard('🔥','Hot Streak',winnerHot.item.name,`${winnerHot.value} correct winner picks in a row.`):awardCard('🔥','Hot Streak','No clear streak yet','Nobody currently owns a solo multi-match streak.',true));
+ }
  const heart=clearTop(active,p=>heartbreakCount(p.id),true,1);
  cards.push(heart?awardCard('💔','Heartbreak Kid',heart.item.name,`${heart.value} near-miss${heart.value===1?'':'es'} where the exact score was only one goal away.`):awardCard('💔','Heartbreak Kid','No heartbreak leader yet','No solo leader in one-goal exact-score misses.',true));
  const movement=rows.map((p,i)=>({p,delta:(prevRanks[p.id]||i+1)-(i+1)}));
- const climb=clearTop(movement,x=>x.delta,true,1);
- if(climb) cards.push(awardCard('📈','Climber',climb.item.p.name,`Up ${climb.value} place${climb.value===1?'':'s'} after the latest update.`));
+ const momentumPlayer=rows.find(p=>p.id===INSIGHT_MOMENTUM.playerId);
+ if(momentumPlayer){
+  cards.push(awardCard('📈','Climber',momentumPlayer.name,`Up ${INSIGHT_MOMENTUM.placesClimbed} places across the last ${INSIGHT_MOMENTUM.predictionSpan} predictions — ${INSIGHT_MOMENTUM.description}.`));
+ }else{
+  const climb=clearTop(movement,x=>x.delta,true,1);
+  if(climb) cards.push(awardCard('📈','Climber',climb.item.p.name,`Up ${climb.value} place${climb.value===1?'':'s'} after the latest update.`));
+ }
  const bottle=clearTop(movement,x=>-x.delta,true,1);
  if(bottle) cards.push(awardCard('📉','Bottler',bottle.item.p.name,`Down ${-bottle.item.delta} place${-bottle.item.delta===1?'':'s'} after the latest update.`));
  const giant=clearTop(active,p=>giantKillerCount(p.id),true,1);
@@ -528,7 +556,8 @@ function render(){
  document.getElementById('statlab').innerHTML=`<p>🧊 <b>Yet to enter:</b><br>${zeroClub}</p><p>🔓 <b>Needs first exact score:</b><br>${needsExact}</p><p>✅ <b>Correct-winner crew:</b><br>${winnerPack}</p><p>📏 <b>Lowest score-error board:<br><span class="small">lower is better</span></b><br>${errorPack}</p><p>🧾 <b>Update mode:</b><br>View-only board. Quarterfinal predictions stay separate from the Past Predictions archive.</p>`;
  const analyst=[]; const chasers=rows.filter(p=>p.name!==leader.name);
  analyst.push(`🗂️ <b>Structure update:</b> Past Predictions is now the archive. Current Predictions now shows the quarterfinal board, so this will scale better as the tournament fills up.`);
- analyst.push(`🧠 <b>Tie-breaker era:</b> Exact scores still rule, and Avg Score Error is now live after the July 5 results. It is the first separator after exact-score points.`);
+ analyst.push(`🚀 <b>Momentum watch:</b> Risky has climbed five places across the last two prediction updates and reached the top after back-to-back exact scores: France 2-0 Morocco and Spain 2-1 Belgium.`);
+ analyst.push(`🧠 <b>Tie-breaker era:</b> Exact scores still rule, and Avg Score Error is now live after the July 5 results. Correct Winner Picked is checked before Score Error.`);
  const inactive=rows.filter(p=>p.preds===0).map(p=>p.name); if(inactive.length) analyst.push(`🕵️ <b>Mystery entrants:</b> ${inactive.join(', ')} have not predicted yet, so their ceiling depends completely on whether they start playing.`);
  const overtakeText=rows.slice(1).map(p=>{let needPts=Math.max(0,leader.points-p.points+1); if(p.points===leader.points){if(p.winnerHits<leader.winnerHits)return `${p.name}: needs ${leader.winnerHits-p.winnerHits} Correct Winner Pick${leader.winnerHits-p.winnerHits===1?'':'s'} or 1 exact score to pass ${leader.name}`; if(p.winnerHits===leader.winnerHits&&(p.errorPerScored??999)>(leader.errorPerScored??999))return `${p.name}: needs to lower Score Error below ${errorFmt(leader)} or hit 1 exact score to pass ${leader.name}`; if(p.winnerHits===leader.winnerHits&&(p.errorPerScored??999)===(leader.errorPerScored??999)&&p.gdHits<leader.gdHits)return `${p.name}: needs ${leader.gdHits-p.gdHits} GD hit${leader.gdHits-p.gdHits===1?'':'s'} or 1 exact score to pass ${leader.name}`;} return `${p.name}: needs ${needPts} exact-score point${needPts===1?'':'s'} to move ahead of ${leader.name}`;}).slice(0,7).join('<br>');
  analyst.push(`🧮 <b>Path to top:</b><br>${overtakeText}`);
