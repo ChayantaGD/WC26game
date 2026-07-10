@@ -191,19 +191,33 @@ const PAST_MATCHDAYS=[{
    {playerId:'roxy',player:'Roxy',home:1,away:0,note:'France win'}
   ]},
  ]
+},{
+ date:'July 10, 2026',
+ sortDate:'2026-07-10',
+ title:'Quarterfinal archive: Spain/Belgium',
+ summary:'Spain beat Belgium 2-1. Risky hit the exact score, while Party Animal and Porky Broman also correctly backed Spain. This match is now archived and the next quarterfinal is highlighted in Current Predictions.',
+ fixtures:[
+  {id:'esp-bel-qf',fixture:'Spain vs Belgium',homeTeam:'Spain',awayTeam:'Belgium',kickoff:'July 10, 3:00 PM ET',venue:'Quarterfinal',stage:'Quarterfinal',scoreErrorEligible:true,actual:{home:2,away:1,status:'Final',summary:'Spain beat Belgium 2-1'},predictions:[
+   {playerId:'risky',player:'Risky',home:2,away:1,note:'Spain win'},
+   {playerId:'roxy',player:'Roxy',home:2,away:2,note:'Draw; Belgium through on penalties'},
+   {playerId:'party',player:'Party Animal',home:2,away:0,note:'Spain win'},
+   {playerId:'porky',player:'Porky Broman',home:3,away:1,note:'Spain win'},
+   {playerId:'diki',player:'Lil Diki',home:0,away:2,note:'Belgium win'},
+   {playerId:'ghos',player:'Big Ghos',home:1,away:1,note:'Draw; Spain through on penalties'}
+  ]}
+ ]
 }];
 
 const CURRENT_MATCHDAY={
  date:'Quarterfinals',
- title:'Remaining quarterfinals',
+ title:'Next quarterfinals',
  fixtures:[
-  {id:'esp-bel-qf',fixture:'Spain vs Belgium',homeTeam:'Spain',awayTeam:'Belgium',kickoff:'July 10, 3:00 PM ET',venue:'Quarterfinal',stage:'Quarterfinal',scoreErrorEligible:true,predictions:[]},
   {id:'nor-eng-qf',fixture:'Norway vs England',homeTeam:'Norway',awayTeam:'England',kickoff:'July 11, 5:00 PM ET',venue:'Quarterfinal',stage:'Quarterfinal',scoreErrorEligible:true,predictions:[]},
   {id:'arg-sui-qf',fixture:'Argentina vs Switzerland',homeTeam:'Argentina',awayTeam:'Switzerland',kickoff:'July 11, 9:00 PM ET',venue:'Quarterfinal',stage:'Quarterfinal',scoreErrorEligible:true,predictions:[]}
  ]
 };
 
-const DEFAULT_GAMES_LEFT=7;
+const DEFAULT_GAMES_LEFT=6;
 let remainingGames=DEFAULT_GAMES_LEFT;
 let players=JSON.parse(JSON.stringify(START));
 
@@ -324,8 +338,8 @@ function renderCurrentPredictions(){
  const statusText=totalCurrent
   ? '<b>Predictions are in for the current stage.</b> These games will update points, GD hits, correct winners, and Avg Score Error after final scores are added.'
   : '<b>Quarterfinal board loaded.</b> No predictions are entered yet, so this tab is now ready for the next set of picks.';
- document.getElementById('currentOverview').innerHTML=`<h2>${CURRENT_MATCHDAY.date} — ${CURRENT_MATCHDAY.title}</h2><p class="note">${statusText}</p><p><span class="pill blue">${f.length} QF games listed</span> <span class="pill gold">${completed} final</span> <span class="pill purple">${pending} pending</span> <span class="pill green">${activePlayers.length} players submitted</span> <span class="pill gold">Quarterfinal mode</span></p>`;
- document.getElementById('currentFixtures').innerHTML=f.map(x=>`<div class="qf-card ${x.id==='esp-bel-qf'?'current-next':''}">${x.actual?renderFixtureArchive(x):renderUpcomingFixture(x)}</div>`).join('');
+ document.getElementById('currentOverview').innerHTML=`<h2>${CURRENT_MATCHDAY.date} — ${CURRENT_MATCHDAY.title}</h2><p class="note">${statusText}</p><p><span class="pill blue">${f.length} QF games remaining</span> <span class="pill gold">${completed} final</span> <span class="pill purple">${pending} pending</span> <span class="pill green">${activePlayers.length} players submitted</span> <span class="pill gold">Quarterfinal mode</span></p>`;
+ document.getElementById('currentFixtures').innerHTML=f.map(x=>`<div class="qf-card ${x.id==='nor-eng-qf'?'current-next':''}">${x.actual?renderFixtureArchive(x):renderUpcomingFixture(x)}</div>`).join('');
  document.getElementById('currentDrama').innerHTML=renderCurrentDrama(f);
 }
 
@@ -370,7 +384,7 @@ function renderPastPredictions(){
 }
 
 function previousRankMap(){
- const before=calc({excludeFixtureIds:['fra-mar-qf']});
+ const before=calc({excludeFixtureIds:['esp-bel-qf']});
  const map={};
  before.forEach((p,i)=>{map[p.id]=i+1;});
  return map;
