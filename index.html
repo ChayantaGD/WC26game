@@ -49,6 +49,9 @@ html,body{max-width:100%;overflow-x:hidden}
 .tabs{z-index:20}.tab{min-height:44px;transition:.2s ease}.tab:focus-visible{outline:3px solid rgba(102,232,255,.65);outline-offset:2px}
 .current-next{position:relative;border:1px solid rgba(255,209,102,.72)!important;background:linear-gradient(145deg,rgba(47,36,8,.84),rgba(8,18,42,.96))!important;box-shadow:0 0 0 1px rgba(255,209,102,.18) inset,0 18px 55px rgba(255,178,30,.13)!important}
 .current-next:before{content:'NEXT MATCH';position:absolute;top:12px;right:12px;padding:6px 9px;border-radius:999px;background:linear-gradient(135deg,#ffd166,#ff9f1c);color:#231400;font-size:10px;font-weight:1000;letter-spacing:.08em;z-index:2}
+.current-live{position:relative;border:1px solid rgba(239,35,60,.82)!important;background:linear-gradient(145deg,rgba(61,8,18,.88),rgba(8,18,42,.96))!important;box-shadow:0 0 0 1px rgba(239,35,60,.20) inset,0 18px 55px rgba(239,35,60,.16)!important}
+.current-live:before{content:'● LIVE';position:absolute;top:12px;right:12px;padding:6px 10px;border-radius:999px;background:linear-gradient(135deg,#ff3852,#c91432);color:#fff;font-size:10px;font-weight:1000;letter-spacing:.08em;z-index:2;box-shadow:0 0 18px rgba(239,35,60,.45)}
+.current-upcoming{position:relative;border-color:rgba(102,232,255,.26)!important}
 .fixtureCard{position:relative}.matchTitle{font-size:16px}.scoreBig{font-size:26px;margin-top:5px}.flagOnly{display:inline-flex;align-items:center;vertical-align:middle}.flagOnly .flagImg{width:38px;height:26px;margin:0 5px}.predictionScore{display:inline-flex;align-items:center;gap:7px;font-size:16px;font-weight:1000;white-space:nowrap}
 .pastDay{border:1px solid rgba(255,255,255,.10);border-radius:17px;margin-top:12px;overflow:hidden;background:rgba(255,255,255,.025)}.pastDay summary{cursor:pointer;list-style:none;padding:15px 16px;font-weight:1000;display:flex;justify-content:space-between;gap:12px;align-items:center}.pastDay summary::-webkit-details-marker{display:none}.pastDay summary:after{content:'＋';font-size:18px;color:var(--cyan)}.pastDay[open] summary:after{content:'−'}.pastDayBody{padding:0 16px 16px}.archiveMeta{color:var(--muted);font-size:12px;font-weight:700}
 .backTop{position:fixed;right:18px;bottom:18px;width:44px;height:44px;border-radius:50%;padding:0;display:none;z-index:80;background:linear-gradient(135deg,var(--blue),#7b3cff);box-shadow:0 12px 32px rgba(0,0,0,.45)}.backTop.show{display:grid;place-items:center}
@@ -209,11 +212,25 @@ const PAST_MATCHDAYS=[{
 }];
 
 const CURRENT_MATCHDAY={
- date:'Quarterfinals',
- title:'Next quarterfinals',
+ date:'Quarterfinals + Semifinal',
+ title:'Live match, next match, and first semifinal',
  fixtures:[
-  {id:'nor-eng-qf',fixture:'Norway vs England',homeTeam:'Norway',awayTeam:'England',kickoff:'July 11, 5:00 PM ET',venue:'Quarterfinal',stage:'Quarterfinal',scoreErrorEligible:true,predictions:[]},
-  {id:'arg-sui-qf',fixture:'Argentina vs Switzerland',homeTeam:'Argentina',awayTeam:'Switzerland',kickoff:'July 11, 9:00 PM ET',venue:'Quarterfinal',stage:'Quarterfinal',scoreErrorEligible:true,predictions:[]}
+  {id:'nor-eng-qf',fixture:'Norway vs England',homeTeam:'Norway',awayTeam:'England',kickoff:'July 11, 5:00 PM ET',venue:'Miami Stadium — Miami Gardens, Florida',stage:'Quarterfinal',displayStatus:'LIVE',scoreErrorEligible:true,predictions:[
+   {playerId:'risky',player:'Risky',home:2,away:2,note:'Draw; England through'},
+   {playerId:'diki',player:'Lil Diki',home:2,away:1,note:'Norway win'},
+   {playerId:'party',player:'Party Animal',home:1,away:0,note:'Norway win'},
+   {playerId:'roxy',player:'Roxy',home:1,away:2,note:'England win'},
+   {playerId:'porky',player:'Porky Broman',home:1,away:2,note:'England win'},
+   {playerId:'ghos',player:'Big Ghos',home:1,away:2,note:'England win'}
+  ]},
+  {id:'arg-sui-qf',fixture:'Argentina vs Switzerland',homeTeam:'Argentina',awayTeam:'Switzerland',kickoff:'July 11, 9:00 PM ET (8:00 PM CT)',venue:'Kansas City Stadium — Kansas City, Missouri',stage:'Quarterfinal',displayStatus:'NEXT MATCH',scoreErrorEligible:true,predictions:[
+   {playerId:'ghos',player:'Big Ghos',home:1,away:0,note:'Argentina win'},
+   {playerId:'diki',player:'Lil Diki',home:1,away:1,note:'Draw; Argentina through on penalties'},
+   {playerId:'roxy',player:'Roxy',home:2,away:1,note:'Argentina win'},
+   {playerId:'porky',player:'Porky Broman',home:1,away:1,note:'Draw; Switzerland through on penalties'},
+   {playerId:'party',player:'Party Animal',home:3,away:0,note:'Argentina win'}
+  ]},
+  {id:'fra-esp-sf',fixture:'France vs Spain',homeTeam:'France',awayTeam:'Spain',kickoff:'July 14, 3:00 PM ET (2:00 PM CT)',venue:'Dallas Stadium — Arlington, Texas',stage:'Semifinal',displayStatus:'UPCOMING',scoreErrorEligible:true,predictions:[]}
  ]
 };
 
@@ -338,8 +355,8 @@ function renderCurrentPredictions(){
  const statusText=totalCurrent
   ? '<b>Predictions are in for the current stage.</b> These games will update points, GD hits, correct winners, and Avg Score Error after final scores are added.'
   : '<b>Quarterfinal board loaded.</b> No predictions are entered yet, so this tab is now ready for the next set of picks.';
- document.getElementById('currentOverview').innerHTML=`<h2>${CURRENT_MATCHDAY.date} — ${CURRENT_MATCHDAY.title}</h2><p class="note">${statusText}</p><p><span class="pill blue">${f.length} QF games remaining</span> <span class="pill gold">${completed} final</span> <span class="pill purple">${pending} pending</span> <span class="pill green">${activePlayers.length} players submitted</span> <span class="pill gold">Quarterfinal mode</span></p>`;
- document.getElementById('currentFixtures').innerHTML=f.map(x=>`<div class="qf-card ${x.id==='nor-eng-qf'?'current-next':''}">${x.actual?renderFixtureArchive(x):renderUpcomingFixture(x)}</div>`).join('');
+ document.getElementById('currentOverview').innerHTML=`<h2>${CURRENT_MATCHDAY.date} — ${CURRENT_MATCHDAY.title}</h2><p class="note">${statusText}</p><p><span class="pill blue">${f.length} matches listed</span> <span class="pill gold">${completed} final</span> <span class="pill purple">${pending} pending</span> <span class="pill green">${activePlayers.length} players submitted</span> <span class="pill gold">Knockout mode</span></p>`;
+ document.getElementById('currentFixtures').innerHTML=f.map(x=>{const stateClass=x.displayStatus==='LIVE'?'current-live':x.displayStatus==='NEXT MATCH'?'current-next':'current-upcoming';return `<div class="qf-card ${stateClass}">${x.actual?renderFixtureArchive(x):renderUpcomingFixture(x)}</div>`;}).join('');
  document.getElementById('currentDrama').innerHTML=renderCurrentDrama(f);
 }
 
@@ -357,7 +374,7 @@ function renderUpcomingFixture(f){
   const fp={...p,homeTeam:f.homeTeam,awayTeam:f.awayTeam};
   return `<tr><td><b>${escapeHtml(p.player)}</b></td><td><span class="predictionScore">${flagOnly(f.homeTeam)} <b>${p.home}-${p.away}</b> ${flagOnly(f.awayTeam)}</span><div class="small">${escapeHtml(p.note)}</div></td><td><span class="pill blue">${pickSideLabel(fp)}</span></td><td><span class="pill purple">Pending</span></td></tr>`
  }).join(''):`<tr><td colspan="4"><p class="note"><b>No predictions entered yet.</b> Add each player's score picks here once they submit.</p></td></tr>`;
- return `<div class="fixtureCard"><div class="matchTitle">${teamLabel(f.homeTeam)} <span class="small">vs</span> ${teamLabel(f.awayTeam)}</div><div class="scoreBig">${teamLabel(f.homeTeam)} <span class="small">vs</span> ${teamLabel(f.awayTeam)}</div><p><span class="pill blue">${f.stage}</span> <span class="pill gold">${f.kickoff}</span></p><p class="note"><b>Venue:</b> ${escapeHtml(f.venue)}</p><p><span class="pill green">${predCount} prediction${predCount===1?'':'s'} entered</span> <span class="pill purple">${teamLabel(f.homeTeam)}: ${groups.home||0}</span> <span class="pill purple">${teamLabel(f.awayTeam)}: ${groups.away||0}</span> <span class="pill blue">Pens/draw: ${groups.draw||0}</span></p><table><thead><tr><th>Player</th><th>Prediction</th><th>Call</th><th>Avg Score Error</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+ return `<div class="fixtureCard"><div class="matchTitle">${teamLabel(f.homeTeam)} <span class="small">vs</span> ${teamLabel(f.awayTeam)}</div><div class="scoreBig">${teamLabel(f.homeTeam)} <span class="small">vs</span> ${teamLabel(f.awayTeam)}</div><p><span class="pill blue">${f.stage}</span> <span class="pill gold">${f.kickoff}</span> ${f.displayStatus?`<span class="pill ${f.displayStatus==='LIVE'?'red':'green'}">${escapeHtml(f.displayStatus)}</span>`:''}</p><p class="note"><b>Venue:</b> ${escapeHtml(f.venue)}</p><p><span class="pill green">${predCount} prediction${predCount===1?'':'s'} entered</span> <span class="pill purple">${teamLabel(f.homeTeam)}: ${groups.home||0}</span> <span class="pill purple">${teamLabel(f.awayTeam)}: ${groups.away||0}</span> <span class="pill blue">Pens/draw: ${groups.draw||0}</span></p><table><thead><tr><th>Player</th><th>Prediction</th><th>Call</th><th>Avg Score Error</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
 function renderCurrentDrama(fixtures){
