@@ -209,21 +209,28 @@ const PAST_MATCHDAYS=[{
    {playerId:'ghos',player:'Big Ghos',home:1,away:1,note:'Draw; Spain through on penalties'}
   ]}
  ]
-}];
-
-const CURRENT_MATCHDAY={
- date:'Quarterfinals + Semifinal',
- title:'Live match, next match, and first semifinal',
+},{
+ date:'July 11, 2026',
+ sortDate:'2026-07-11',
+ title:'Quarterfinal archive: Norway/England',
+ summary:'England beat Norway 2-1. Roxy, Porky Broman, and Big Ghos hit the exact score. Risky correctly called England to advance from a 2-2 prediction, while Lil Diki and Party Animal backed Norway.',
  fixtures:[
-  {id:'nor-eng-qf',fixture:'Norway vs England',homeTeam:'Norway',awayTeam:'England',kickoff:'July 11, 5:00 PM ET',venue:'Miami Stadium — Miami Gardens, Florida',stage:'Quarterfinal',displayStatus:'LIVE',scoreErrorEligible:true,predictions:[
+  {id:'nor-eng-qf',fixture:'Norway vs England',homeTeam:'Norway',awayTeam:'England',kickoff:'July 11, 5:00 PM ET',venue:'Miami Stadium — Miami Gardens, Florida',stage:'Quarterfinal',scoreErrorEligible:true,actual:{home:1,away:2,status:'Final',summary:'England beat Norway 2-1'},predictions:[
    {playerId:'risky',player:'Risky',home:2,away:2,note:'Draw; England through'},
    {playerId:'diki',player:'Lil Diki',home:2,away:1,note:'Norway win'},
    {playerId:'party',player:'Party Animal',home:1,away:0,note:'Norway win'},
    {playerId:'roxy',player:'Roxy',home:1,away:2,note:'England win'},
    {playerId:'porky',player:'Porky Broman',home:1,away:2,note:'England win'},
    {playerId:'ghos',player:'Big Ghos',home:1,away:2,note:'England win'}
-  ]},
-  {id:'arg-sui-qf',fixture:'Argentina vs Switzerland',homeTeam:'Argentina',awayTeam:'Switzerland',kickoff:'July 11, 9:00 PM ET (8:00 PM CT)',venue:'Kansas City Stadium — Kansas City, Missouri',stage:'Quarterfinal',displayStatus:'NEXT MATCH',scoreErrorEligible:true,predictions:[
+  ]}
+ ]
+}];
+
+const CURRENT_MATCHDAY={
+ date:'Quarterfinal + Semifinal',
+ title:'Live quarterfinal and first semifinal',
+ fixtures:[
+  {id:'arg-sui-qf',fixture:'Argentina vs Switzerland',homeTeam:'Argentina',awayTeam:'Switzerland',kickoff:'July 11, 9:00 PM ET (8:00 PM CT)',venue:'Kansas City Stadium — Kansas City, Missouri',stage:'Quarterfinal',displayStatus:'LIVE',scoreErrorEligible:true,predictions:[
    {playerId:'ghos',player:'Big Ghos',home:1,away:0,note:'Argentina win'},
    {playerId:'diki',player:'Lil Diki',home:1,away:1,note:'Draw; Argentina through on penalties'},
    {playerId:'roxy',player:'Roxy',home:2,away:1,note:'Argentina win'},
@@ -234,7 +241,7 @@ const CURRENT_MATCHDAY={
  ]
 };
 
-const DEFAULT_GAMES_LEFT=6;
+const DEFAULT_GAMES_LEFT=5;
 let remainingGames=DEFAULT_GAMES_LEFT;
 let players=JSON.parse(JSON.stringify(START));
 
@@ -401,7 +408,7 @@ function renderPastPredictions(){
 }
 
 function previousRankMap(){
- const before=calc({excludeFixtureIds:['esp-bel-qf']});
+ const before=calc({excludeFixtureIds:['nor-eng-qf']});
  const map={};
  before.forEach((p,i)=>{map[p.id]=i+1;});
  return map;
@@ -513,7 +520,7 @@ function storylineBadges(rows,prevRanks){
   cards.push(awardCard('🔥','Hot Streak',exactHot.item.name,`${exactHot.value} exact-score hits in a row — France 2-0 Morocco followed by Spain 2-1 Belgium.`));
  }else{
   const winnerHot=clearTop(active,p=>currentWinnerStreak(p.id),true,2);
-  cards.push(winnerHot?awardCard('🔥','Hot Streak',winnerHot.item.name,`${winnerHot.value} correct winner picks in a row.`):awardCard('🔥','Hot Streak','No clear streak yet','Nobody currently owns a solo multi-match streak.',true));
+  cards.push(winnerHot?awardCard('🔥','Hot Streak',winnerHot.item.name,`${winnerHot.value} correct winner picks in a row.`):awardCard('🔥','Hot Streak — Historical','Risky','Back-to-back exact scores on France 2-0 Morocco and Spain 2-1 Belgium powered a five-place climb to the top.'));
  }
  const heart=clearTop(active,p=>heartbreakCount(p.id),true,1);
  cards.push(heart?awardCard('💔','Heartbreak Kid',heart.item.name,`${heart.value} near-miss${heart.value===1?'':'es'} where the exact score was only one goal away.`):awardCard('💔','Heartbreak Kid','No heartbreak leader yet','No solo leader in one-goal exact-score misses.',true));
@@ -570,10 +577,11 @@ function render(){
  const needsExact=rows.filter(p=>p.points===0&&p.preds>0).map(p=>p.name).join(', ')||'Nobody';
  const errorPack=rows.filter(p=>p.errorPerScored!==null).sort((a,b)=>a.errorPerScored-b.errorPerScored||b.winnerHits-a.winnerHits||a.name.localeCompare(b.name)).map(p=>`${p.name} (${errorFmt(p)})`).join(', ')||'Starts after July 5 results';
  const winnerPack=rows.filter(p=>p.winnerHits>0).sort((a,b)=>b.winnerHits-a.winnerHits||a.errorPerScored-b.errorPerScored||a.name.localeCompare(b.name)).map(p=>`${p.name} (${p.winnerHits})`).join(', ')||'No correct winner picks yet';
- document.getElementById('statlab').innerHTML=`<p>🧊 <b>Yet to enter:</b><br>${zeroClub}</p><p>🔓 <b>Needs first exact score:</b><br>${needsExact}</p><p>✅ <b>Correct-winner crew:</b><br>${winnerPack}</p><p>📏 <b>Lowest score-error board:<br><span class="small">lower is better</span></b><br>${errorPack}</p><p>🧾 <b>Update mode:</b><br>View-only board. Quarterfinal predictions stay separate from the Past Predictions archive.</p>`;
+ document.getElementById('statlab').innerHTML=`<p>🧊 <b>Yet to enter:</b><br>${zeroClub}</p><p>🔓 <b>Needs first exact score:</b><br>${needsExact}</p><p>✅ <b>Correct-winner crew:</b><br>${winnerPack}</p><p>📏 <b>Lowest score-error board:<br><span class="small">lower is better</span></b><br>${errorPack}</p><p>🧾 <b>Update mode:</b><br>View-only board. Live and upcoming predictions stay separate from the Past Predictions archive.</p>`;
  const analyst=[]; const chasers=rows.filter(p=>p.name!==leader.name);
- analyst.push(`🗂️ <b>Structure update:</b> Past Predictions is now the archive. Current Predictions now shows the quarterfinal board, so this will scale better as the tournament fills up.`);
+ analyst.push(`🗂️ <b>Structure update:</b> Past Predictions is now the archive. Current Predictions now shows the live Argentina–Switzerland quarterfinal and the France–Spain semifinal, so this will scale better as the tournament fills up.`);
  analyst.push(`🚀 <b>Momentum watch:</b> Risky has climbed five places across the last two prediction updates and reached the top after back-to-back exact scores: France 2-0 Morocco and Spain 2-1 Belgium.`);
+ analyst.push(`🎯 <b>Latest result:</b> England beat Norway 2-1. Roxy, Porky Broman, and Big Ghos landed the exact score, while Risky correctly called England to advance from his 2-2 prediction.`);
  analyst.push(`🧠 <b>Tie-breaker era:</b> Exact scores still rule, and Avg Score Error is now live after the July 5 results. Correct Winner Picked is checked before Score Error.`);
  const inactive=rows.filter(p=>p.preds===0).map(p=>p.name); if(inactive.length) analyst.push(`🕵️ <b>Mystery entrants:</b> ${inactive.join(', ')} have not predicted yet, so their ceiling depends completely on whether they start playing.`);
  const overtakeText=rows.slice(1).map(p=>{let needPts=Math.max(0,leader.points-p.points+1); if(p.points===leader.points){if(p.winnerHits<leader.winnerHits)return `${p.name}: needs ${leader.winnerHits-p.winnerHits} Correct Winner Pick${leader.winnerHits-p.winnerHits===1?'':'s'} or 1 exact score to pass ${leader.name}`; if(p.winnerHits===leader.winnerHits&&(p.errorPerScored??999)>(leader.errorPerScored??999))return `${p.name}: needs to lower Score Error below ${errorFmt(leader)} or hit 1 exact score to pass ${leader.name}`; if(p.winnerHits===leader.winnerHits&&(p.errorPerScored??999)===(leader.errorPerScored??999)&&p.gdHits<leader.gdHits)return `${p.name}: needs ${leader.gdHits-p.gdHits} GD hit${leader.gdHits-p.gdHits===1?'':'s'} or 1 exact score to pass ${leader.name}`;} return `${p.name}: needs ${needPts} exact-score point${needPts===1?'':'s'} to move ahead of ${leader.name}`;}).slice(0,7).join('<br>');
