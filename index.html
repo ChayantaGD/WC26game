@@ -258,6 +258,61 @@ tr:hover td{
   object-position:center!important;
 }
 
+
+/* World Cup Final spotlight */
+.current-final{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(255,220,90,.92)!important;
+  background:
+    radial-gradient(circle at 20% 10%,rgba(255,239,160,.12),transparent 24%),
+    radial-gradient(circle at 82% 18%,rgba(255,190,0,.13),transparent 22%),
+    linear-gradient(145deg,rgba(72,45,4,.90),rgba(9,17,39,.97) 58%,rgba(24,8,36,.94))!important;
+  box-shadow:
+    0 0 0 1px rgba(255,246,196,.26) inset,
+    0 22px 70px rgba(255,176,0,.20),
+    0 0 42px rgba(255,201,38,.16)!important;
+}
+.current-final:before{
+  content:'🏆 WORLD CUP FINAL';
+  position:absolute;
+  top:12px;
+  right:12px;
+  z-index:3;
+  padding:7px 11px;
+  border-radius:999px;
+  color:#201300;
+  font-size:10px;
+  font-weight:1000;
+  letter-spacing:.09em;
+  background:linear-gradient(110deg,#8b5700,#ffd166,#fff2aa,#d78a00);
+  border:1px solid rgba(255,255,255,.65);
+  box-shadow:0 0 22px rgba(255,183,3,.42);
+}
+.current-final:after{
+  content:'✦  ✧  ✦  ✧  ✦';
+  position:absolute;
+  left:-12%;
+  top:18%;
+  width:124%;
+  color:rgba(255,238,157,.78);
+  font-size:22px;
+  letter-spacing:34px;
+  pointer-events:none;
+  text-shadow:
+    0 0 8px rgba(255,228,111,.75),
+    0 0 18px rgba(255,183,3,.42);
+  animation:finalGlitter 3.4s ease-in-out infinite alternate;
+}
+@keyframes finalGlitter{
+  0%{transform:translateX(-2%) translateY(0);opacity:.28}
+  50%{opacity:.82}
+  100%{transform:translateX(2%) translateY(16px);opacity:.38}
+}
+@media(prefers-reduced-motion:reduce){
+  .current-final:after{animation:none!important}
+}
+
 </style>
 </head>
 <body><div class="wrap">
@@ -490,7 +545,14 @@ const CURRENT_MATCHDAY={
  date:'Final weekend',
  title:'Third-place match and World Cup Final',
  fixtures:[
-  {id:'third-place',fixture:'France vs England',homeTeam:'France',awayTeam:'England',kickoff:'July 18, 4:00 PM CT • July 19, 2:30 AM IST',venue:'Miami Stadium — Miami Gardens, Florida',stage:'Play-off for third place',displayStatus:'NEXT MATCH',scoreErrorEligible:true,closestErrorPointEligible:true,predictions:[]},
+  {id:'third-place',fixture:'France vs England',homeTeam:'France',awayTeam:'England',kickoff:'July 18, 4:00 PM CT • July 19, 2:30 AM IST',venue:'Miami Stadium — Miami Gardens, Florida',stage:'Play-off for third place',displayStatus:'LIVE',scoreErrorEligible:true,closestErrorPointEligible:true,predictions:[
+   {playerId:'risk',player:'Risky',home:2,away:1,note:'France win'},
+   {playerId:'porky',player:'Porky Broman',home:1,away:1,note:'Draw; France through on penalties'},
+   {playerId:'roxy',player:'Roxy',home:2,away:0,note:'France win'},
+   {playerId:'diki',player:'Lil Diki',home:3,away:2,note:'France win'},
+   {playerId:'ghos',player:'Big Ghos',home:2,away:2,note:'Draw; France through'},
+   {playerId:'party',player:'Party Animal',home:3,away:0,note:'France win'}
+  ]},
   {id:'world-cup-final',fixture:'Spain vs Argentina',homeTeam:'Spain',awayTeam:'Argentina',kickoff:'July 19, 2:00 PM CT • July 20, 12:30 AM IST',venue:'New York New Jersey Stadium — East Rutherford, New Jersey',stage:'World Cup Final',displayStatus:'UPCOMING',scoreErrorEligible:true,closestErrorPointEligible:true,predictions:[]}
  ]
 };
